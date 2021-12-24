@@ -2,7 +2,9 @@
     "prefix": "!",
     "commands": [
         "ping",
-        "uptime"
+        "uptime",
+        "echo",
+        "support"
     ],
 
     "admin": "742800061280550923",

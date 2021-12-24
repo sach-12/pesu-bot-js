@@ -9,9 +9,8 @@ class Commands {
     init = (client) => {
         this.startTime = Math.floor(Date.now() / 1000);
         this.client = client;
-        this.message = "";
-        console.log("Passing done go ahead")
-    }
+        this.message = NaN;
+    },
 
     uptime = (message) => {
         this.message = message;
@@ -68,6 +67,7 @@ class Commands {
             let BotLogs = this.client.channels.cache.get(config.logs)
             if (BotLogs && this.message) {
                 BotLogs.send({ content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">" })
+
                 this.message.reply("Error occurred " + err);
             }
         } else {
@@ -80,3 +80,4 @@ class Commands {
 const commandFunctions = new Commands()
 
 module.exports = commandFunctions
+

@@ -35,12 +35,18 @@ client.on('messageCreate', (message) => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
+    
     if (availableCommands.includes(command)) {
         eval("commandFunctions."+command)(message);
     }
     else {
         message.reply("I have no response for this shit");
     }
+});
+
+process.on("uncaughtException", function(err) {
+    commandFunctions.error(err);
+    // console.log("Caught exception: " + err);
 });
 
 client.login(TOKEN);
