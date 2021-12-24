@@ -1,18 +1,33 @@
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
-const prefix = "!";
-const { Client, Intents} = require('discord.js');
+
+const config = require('./config.json');
+const prefix = config["prefix"];
+const availableCommands = config["commands"];
+
+
+const { 
+    Client,
+    Intents
+} = require('discord.js');
 
 const botIntents = new Intents();
-botIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_PRESENCES);
+botIntents.add(
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_PRESENCES
+);
 
 // Create a new client instance
 const client = new Client(
     {intents: botIntents}
 );
 
+const commandFunctions = require("./client-commands/commands");
+
 client.once('ready', () => {
     console.log('Ready!');
+    commandFunctions.init(client);
 });
 client.on('messageCreate', (message) => {
 
@@ -20,15 +35,11 @@ client.on('messageCreate', (message) => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
-    console.log(command);
-    if (command === 'ping') {
-        console.log("pinged");
-        message.channel.send('Pong.\nI am pesu.js');
-        console.log(client.late);
+    if (availableCommands.includes(command)) {
+        eval("commandFunctions."+command)(message);
     }
-    else if (command === 'beep') {
-        message.channel.send('Boop.');
-        
+    else {
+        message.reply("I have no response for this shit");
     }
 });
 
