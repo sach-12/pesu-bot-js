@@ -10,7 +10,7 @@ class Commands {
         this.startTime = Math.floor(Date.now() / 1000);
         this.client = client;
         this.message = NaN;
-    },
+    }
 
     uptime = (message) => {
         this.message = message;
