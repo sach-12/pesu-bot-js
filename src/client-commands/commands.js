@@ -9,8 +9,9 @@ class Commands {
     init = (client) => {
         this.startTime = Math.floor(Date.now() / 1000);
         this.client = client;
-        this.message = NaN;
-    },
+        this.message = "";
+        console.log("Passing done go ahead")
+    }
 
     uptime = (message) => {
         this.message = message;
@@ -21,7 +22,7 @@ class Commands {
     }
 
     ping = (message) => {
-        this.message=message
+        this.message = message
         message.channel.send(`Pong!!!\nPing =${this.client.ws.ping} ms`);
     }
     echo = (message) => {
@@ -67,7 +68,6 @@ class Commands {
             let BotLogs = this.client.channels.cache.get(config.logs)
             if (BotLogs && this.message) {
                 BotLogs.send({ content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">" })
-
                 this.message.reply("Error occurred " + err);
             }
         } else {
@@ -75,9 +75,90 @@ class Commands {
             // this isnt a true test. just a starting of bot to check the syntax errors etc if any
         }
     }
+
+    purge = async (message, args) => {
+        this.message=message
+        if (message.member.permissions.has("MANAGE_MESSAGES")) {
+            if (!args[0]) {
+                return message.reply(
+                    "Please enter the number of messages to be purged"
+                ); //If I don't put return here, it will send the below messages also
+            }
+            if (isNaN(args[0])) {
+                return message.reply(
+                    "Make sure that the entered argument is a number"
+                );
+            }
+            if (args[0] > 100) {
+                return message.reply("You cannot delete more than 100 messages");
+            }
+            if (args[0] < 1) {
+                return message.reply(
+                    "Enter a valid number in the range of 0 to 100"
+                );
+            }
+            let amount = parseInt(args[0]) + 1;
+            await message.channel.messages
+                .fetch({ limit: amount })
+                .then((messages) => message.channel.bulkDelete(messages));
+        } else {
+            await message.channel.send("Noob, you don't have perms to purge");
+        }
+    }
+
+    kick = (message, args) => {
+        this.message=message
+        if(message.member.permissions.has("KICK_MEMBERS")){
+            const target=message.mentions.users.first()
+            let reason=""
+            for(let i=1;i<args.length;++i){
+                reason=reason+" "+args[i]
+            }
+            if(target){
+                const memberTarget=message.guild.members.cache.get(target.id)
+                memberTarget.kick(reason)
+                if(reason){
+                    message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`)
+                }
+                else{
+                    message.channel.send(`**${target.tag}** has been kicked \nReason: No reason mentioned`)
+                }
+            }
+            else{
+                message.reply("Please mention soemone to kick")
+            }
+        }
+        else{
+            message.reply("Noob you can't do that")
+        }
+    }
+    ban = (message,args)=>{
+        if(message.member.permissions.has("BAN_MEMBERS")){
+             const target=message.mentions.users.first()
+            let reason=""
+            for(let i=1;i<args.length;++i){
+                reason=reason+" "+args[i]
+            }
+            if(target){
+                const memberTarget=message.guild.members.cache.get(target.id)
+                memberTarget.ban({reason:reason})
+                if(reason){
+                    message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`)
+                }
+                else{
+                    message.channel.send(`**${target.tag}** has been kicked \nReason: No reason mentioned`)
+                }
+            }
+            else{
+                message.reply("Please mention soemone to kick")
+            }
+        }
+        else{
+            message.reply("Noob you can't do that")
+        }
+    }
 };
 
 const commandFunctions = new Commands()
 
 module.exports = commandFunctions
-
