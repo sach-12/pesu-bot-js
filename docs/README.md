@@ -3,6 +3,8 @@
     <p>Rewrite for PESU Discord bot-js in Javascript</p>
 <h2>
 <p align="center">
+    <a href="https://github.com/sach-12/pesu-bot-js/actions" alt="Build status">
+    <img src="https://github.com/sach-12/pesu-bot-js/actions/workflows/node.js.yml/badge.svg"/></a>
     <a href="https://github.com/sach-12/pesu-bot-js/issues" alt="issues">
     <img alt="GitHub forks" src="https://img.shields.io/github/issues/sach-12/pesu-bot-js"></a>
     <a href="https://github.com/sach-12/pesu-bot-js/stargazers" alt="Stars">
@@ -22,16 +24,17 @@ Refer to the python code [here](https://github.com/sach-12/pesu-bot)
 * Edit the **.env** adding your BOT's token
 * Do **npm install** inside the src folder
 * set up the **config.json** in the following format
-    ![image](https://imgur.com/hwABak8.png)
+
+![image](https://imgur.com/hwABak8.png)
 * Start the BOT using the commmand **node index.js** in the same directory as **index.js**
 
 ## Folder Structure
 ```bash
+├── package-lock.json
+├── package.json
 ├── src
 │   ├── config.json
 │   ├── index.js 
-│   ├── package-lock.json
-│   ├── package.json
 │   ├── client-commands
 │   │   └── commands.js
 │   ├── node_modules
