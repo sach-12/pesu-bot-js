@@ -20,7 +20,5 @@ jobs:
         stable_branch: 'main'
         development_branch: 'dev'
         allow_ff: false
-        user_name: 'sach-12'
-        user_email: 'sachinshankar2010@gmail.com'
       env:
         GITHUB_TOKEN: ${{ secrets.NEW_TOKEN }}
