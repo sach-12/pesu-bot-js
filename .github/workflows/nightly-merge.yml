@@ -24,4 +24,4 @@ jobs:
         user_name: 'sach-12'
         user_email: 'sachinshankar2010@gmail.com'
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.NEW_TOKEN }}
