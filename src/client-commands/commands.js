@@ -78,7 +78,9 @@ class Commands {
 
     purge = async (message, args) => {
         this.message=message
-        if (message.member.permissions.has("MANAGE_MESSAGES")) {
+        if (message.member.roles.cache.some(
+            (role) => [config.admin, config.mod, config.botDev].includes(role.id)
+        )) {
             if (!args[0]) {
                 return message.reply(
                     "Please enter the number of messages to be purged"
@@ -108,7 +110,9 @@ class Commands {
 
     kick = (message, args) => {
         this.message=message
-        if(message.member.permissions.has("KICK_MEMBERS")){
+        if(message.member.roles.cache.some(
+            (role) => [config.admin, config.mod].includes(role.id)
+        )){
             const target=message.mentions.users.first()
             let reason=""
             for(let i=1;i<args.length;++i){
@@ -117,31 +121,6 @@ class Commands {
             if(target){
                 const memberTarget=message.guild.members.cache.get(target.id)
                 memberTarget.kick(reason)
-                if(reason){
-                    message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`)
-                }
-                else{
-                    message.channel.send(`**${target.tag}** has been kicked \nReason: No reason mentioned`)
-                }
-            }
-            else{
-                message.reply("Please mention soemone to kick")
-            }
-        }
-        else{
-            message.reply("Noob you can't do that")
-        }
-    }
-    ban = (message,args)=>{
-        if(message.member.permissions.has("BAN_MEMBERS")){
-             const target=message.mentions.users.first()
-            let reason=""
-            for(let i=1;i<args.length;++i){
-                reason=reason+" "+args[i]
-            }
-            if(target){
-                const memberTarget=message.guild.members.cache.get(target.id)
-                memberTarget.ban({reason:reason})
                 if(reason){
                     message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`)
                 }
