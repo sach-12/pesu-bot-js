@@ -102,3 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Batch list and verified JSON files
+batch_list_*.json
+verified.json
