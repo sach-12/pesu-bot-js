@@ -108,34 +108,39 @@ class Commands {
         }
     }
 
-    kick = (message, args) => {
-        this.message=message
+    kick = async(message, args) => {
+        this.message=message;
+        let modLogs = this.client.channels.cache.get(config.modlogs);
         if(message.member.roles.cache.some(
             (role) => [config.admin, config.mod].includes(role.id)
         )){
-            const target=message.mentions.users.first()
-            let reason=""
+            const target=message.mentions.users.first();
+            let reason="";
             for(let i=1;i<args.length;++i){
-                reason=reason+" "+args[i]
+                reason=reason+" "+args[i];
             }
             if(target){
-                const memberTarget=message.guild.members.cache.get(target.id)
-                memberTarget.kick(reason)
+                const memberTarget=message.guild.members.cache.get(target.id);
                 if(reason){
-                    message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`)
+                    await memberTarget.send(`You have been kicked from **${message.guild.name}** \nReason:${reason}`);
+                    await message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`);
+                    await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason:${reason}`);
                 }
                 else{
-                    message.channel.send(`**${target.tag}** has been kicked \nReason: No reason mentioned`)
+                    await memberTarget.send(`You have been kicked from **${message.guild.name}** \nReason: No reason mentioned`);
+                    await message.channel.send(`**${target.tag}** has been kicked \nReason: No reason mentioned`);
+                    await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason: No reason mentioned`);
                 }
+                await memberTarget.kick(reason);
             }
             else{
-                message.reply("Please mention soemone to kick")
+                message.reply("Please mention soemone to kick");
             }
         }
         else{
-            message.reply("Noob you can't do that")
+            message.reply("Noob you can't do that");
         }
-    }
+    } 
 };
 
 const commandFunctions = new Commands()
