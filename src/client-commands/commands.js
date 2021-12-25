@@ -171,6 +171,72 @@ class Commands {
             // this isnt a true test. just a starting of bot to check the syntax errors etc if any
         }
     }
+    
+    purge = async (message, args) => {
+        this.message=message
+        if (message.member.roles.cache.some(
+            (role) => [config.admin, config.mod, config.botDev].includes(role.id)
+        )) {
+            if (!args[0]) {
+                return message.reply(
+                    "Please enter the number of messages to be purged"
+                ); //If I don't put return here, it will send the below messages also
+            }
+            if (isNaN(args[0])) {
+                return message.reply(
+                    "Make sure that the entered argument is a number"
+                );
+            }
+            if (args[0] > 100) {
+                return message.reply("You cannot delete more than 100 messages");
+            }
+            if (args[0] < 1) {
+                return message.reply(
+                    "Enter a valid number in the range of 0 to 100"
+                );
+            }
+            let amount = parseInt(args[0]) + 1;
+            await message.channel.messages
+                .fetch({ limit: amount })
+                .then((messages) => message.channel.bulkDelete(messages));
+        } else {
+            await message.channel.send("Noob, you don't have perms to purge");
+        }
+    }
+
+    kick = async(message, args) => {
+        this.message=message;
+        let modLogs = this.client.channels.cache.get(config.modlogs);
+        if(message.member.roles.cache.some(
+            (role) => [config.admin, config.mod].includes(role.id)
+        )){
+            const target=message.mentions.users.first();
+            let reason="";
+            for(let i=1;i<args.length;++i){
+                reason=reason+" "+args[i];
+            }
+            if(target){
+                const memberTarget=message.guild.members.cache.get(target.id);
+                if(reason){
+                    await memberTarget.send(`You have been kicked from **${message.guild.name}** \nReason:${reason}`);
+                    await message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`);
+                    await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason:${reason}`);
+                }
+                else{
+                    await memberTarget.send(`You have been kicked from **${message.guild.name}** \nReason: No reason mentioned`);
+                    await message.channel.send(`**${target.tag}** has been kicked \nReason: No reason mentioned`);
+                    await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason: No reason mentioned`);
+                }
+                await memberTarget.kick(reason);
+            }
+            else{
+                message.reply("Please mention soemone to kick");
+            }
+        }
+        else{
+            message.reply("Noob you can't do that");
+        }
+    } 
 };
 
 const commandFunctions = new Commands()
