@@ -1,0 +1,26 @@
+name: 'Nightly Merge'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  nightly-merge:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Merging main into dev
+      uses: robotology/gh-action-nightly-merge@v1.3.1
+      with:
+        stable_branch: 'main'
+        development_branch: 'dev'
+        allow_ff: false
+        user_name: 'sach-12'
+        user_email: 'sachinshankar2010@gmail.com'
+      env:
+        GITHUB_TOKEN: ${{ secrets.NEW_TOKEN }}
