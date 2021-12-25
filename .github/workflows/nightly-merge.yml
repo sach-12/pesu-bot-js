@@ -1,10 +1,9 @@
 name: 'Nightly Merge'
 
 on:
-  schedule:
-    push:
-      branches:
-        - main
+  push:
+    branches:
+      - main
 
 jobs:
   nightly-merge:
