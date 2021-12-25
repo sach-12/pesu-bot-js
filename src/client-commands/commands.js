@@ -162,15 +162,11 @@ class Commands {
         if (this.message && this.client) {
             let BotLogs = this.client.channels.cache.get(config.logs)
             if (BotLogs && this.message) {
-                if (err instanceof TypeError && this.message.channel.id === "746058859604606987") {
-                    this.message.reply("Given SRN/PRN not found. Try again");
-                }
-                else{
                     BotLogs.send({ content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">" });
                     this.message.reply("Error occurred " + err);
-                }
             }
-        } else {
+        }
+        else {
             console.log("Invalid token or network issue detected\nIf this is printed in github workflow, build is successful" + err);
             // this isnt a true test. just a starting of bot to check the syntax errors etc if any
         }
