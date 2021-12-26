@@ -37,7 +37,7 @@ client.on('messageCreate', (message) => {
     const command = args.shift().toLowerCase();
     
     if (availableCommands.includes(command)) {
-        eval("commandFunctions."+command)(message);
+        eval("commandFunctions."+command)(message, args);
     }
     else {
         message.reply("I have no response for this shit");

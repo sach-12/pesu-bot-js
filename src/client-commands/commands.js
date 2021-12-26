@@ -12,19 +12,17 @@ class Commands {
         this.message = NaN;
     }
 
-    uptime = (message) => {
+    uptime = async (message) => {
         this.message = message;
         const currTime = Math.floor(Date.now() / 1000);
-        let timeElapsed = currTime - this.startTime;
-
-        message.reply("Bot was started <t:" + this.startTime + ":R>\ni.e., on <t:" + this.startTime + ":f>");
+        await message.reply("Bot was started <t:" + this.startTime + ":R>\ni.e., on <t:" + this.startTime + ":f>");
     }
 
-    ping = (message) => {
+    ping = async (message) => {
         this.message=message
-        message.channel.send(`Pong!!!\nPing =${this.client.ws.ping} ms`);
+        await message.channel.send(`Pong!!!\nPing =\`${this.client.ws.ping} ms\``);
     }
-    echo = (message) => {
+    echo = async (message) => {
         this.message = message
         //syntax - `+e <#channelname> whatever to be echoed
         //paste the required attachment along with that
@@ -39,7 +37,7 @@ class Commands {
                 let channel = message.mentions.channels;
                 let channelID = channel.keys().next().value;
                 if (channelID == undefined) {
-                    return message.reply("Mention the channel")
+                    return await message.reply("Mention the channel")
                 }
                 // get channel by id
                 let channelObj = message.guild.channels.cache.get(channelID);
@@ -51,59 +49,56 @@ class Commands {
                 }
                 return
             }
-            message.reply("what should i even echo");
+            await message.reply("what should i even echo");
         } else {
-            message.reply("Not to you lol");
+            await message.reply("Not to you lol");
         }
     }
 
-    support = (message) => {
+    support = async (message) => {
         this.message = message
-        return message.reply("You can contribute to the bot here\nhttps://github.com/sach-12/pesu-bot-js")
+        return await message.reply("You can contribute to the bot here\nhttps://github.com/sach-12/pesu-bot-js")
     }
     
-    verify = (message) => {
+    verify = async (message, args) => {
         this.message = message;
 
         // Check for verified role already present
         if (message.member.roles.cache.some(
             (role) => [config.verified].includes(role.id)
         )) {
-            return message.reply("You're already verified. Are you trying to steal someone's identity, you naughty little...");
+            return await message.reply("You're already verified. Are you trying to steal someone's identity, you naughty little...");
         }
 
         // MongoDB Client for user data
         var MongoClient = require('mongodb').MongoClient;
         var url = "mongodb://localhost:27017/";
 
-        // Get args
-        const args = message.content.slice(1).trim().split(/ +/);
-        if (args.length == 1) {
-            message.reply("Put your SRN/PRN");
-            return;
+        // Check if arguments are present
+        if (args.length == 0) {
+            return await message.reply("Put your SRN/PRN");
         }
 
         // Get SRN/PRN, named as USN from here on
-        const usn = args[1].toUpperCase();
+        const usn = args[0].toUpperCase();
 
         // Get batch year for collection name
         let year = usn.substring(6, 8);
         if (year === "21" || year === "19" || year === "20" || year === "21") {}
         else {
-            message.reply("Check your SRN/PRN and try again");
-            return;
+            return await message.reply("Check your SRN/PRN and try again");
         }
         var dbc = "batch_20"+year;
 
-        MongoClient.connect(url, function(err, db) {
+        MongoClient.connect(url, async function(err, db) {
             if (err) throw err;
             var dbo = db.db("pesu");
-            dbo.collection(dbc).findOne({SRN: usn}, function(err, res) {
+            dbo.collection(dbc).findOne({SRN: usn}, async function(err, res) {
                 if (err) throw err;
 
                 // If USN not found
                 if(res == null) {
-                    message.reply("Given SRN/PRN not found. Try again!");
+                    await message.reply("Given SRN/PRN not found. Try again!");
                     db.close();
                     return;
                 }
@@ -112,20 +107,20 @@ class Commands {
                 if (usn.startsWith("PES12") || usn.startsWith("PES22")) {
                     var sec = true;
                     var check = res.Section;
-                    message.reply("Now enter your section to complete verification");
+                    await message.reply("Now enter your section to complete verification");
                 }
 
                 // SRN validation for 2019 and 2020 batch
                 else {
                     var sec = false;
                     var check = res.PRN;
-                    message.reply("Now enter your PRN to complete verification");
+                    await message.reply("Now enter your PRN to complete verification");
                 }
 
                 // Message collector for awaiting for response (Section or PRN)
                 const filter = m => m.author.id === message.author.id
                 const collector = message.channel.createMessageCollector({filter, max: 1, time: 10000}); //Timeout in ms
-                collector.on('collect', message => {
+                collector.on('collect', async function(message) {
 
                     // For section: append "Section " before
                     if(sec == true) {
@@ -138,18 +133,18 @@ class Commands {
                     // If Section/PRN matches and verification success
                     // TODO: Add appropriate roles
                     if (check === res) {
-                        message.channel.send("Verification success");
+                        await message.channel.send("Verification success");
                         collector.stop;
                     }
                     else {
-                        message.channel.send("Verification failed");
+                        await message.channel.send("Verification failed");
                         collector.stop;
                     }
                 });
-                collector.on('end', collected => {
+                collector.on('end', async function(collected) {
                     // Timeout message
                     if(collected.size === 0){
-                        message.channel.send("Timed out. Try again");
+                        await message.channel.send("Timed out. Try again");
                     }
                     db.close();
                 });
@@ -157,49 +152,46 @@ class Commands {
         });
     }
 
-    error = (err) => {
+    error = async (err) => {
         //upon any errors all will be dumped to BotLogs channel
         if (this.message && this.client) {
             let BotLogs = this.client.channels.cache.get(config.logs)
             if (BotLogs && this.message) {
-                    BotLogs.send({ content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">" });
-                    this.message.reply("Error occurred " + err);
+                    await BotLogs.send({ content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">" });
+                    await this.message.reply("Error occurred " + err);
             }
         }
         else {
-            console.log("Invalid token or network issue detected\nIf this is printed in github workflow, build is successful" + err);
+            console.log("Invalid token or network issue detected\nIf this is printed in github workflow, build is successful\n" + err);
             // this isnt a true test. just a starting of bot to check the syntax errors etc if any
         }
     }
     
     purge = async (message, args) => {
-        this.message=message
+        this.message=message;
+
+        // Check authorised roles
         if (message.member.roles.cache.some(
             (role) => [config.admin, config.mod, config.botDev].includes(role.id)
         )) {
             if (!args[0]) {
-                return message.reply(
+                return await message.reply(
                     "Please enter the number of messages to be purged"
                 ); //If I don't put return here, it will send the below messages also
             }
-            if (isNaN(args[0])) {
-                return message.reply(
-                    "Make sure that the entered argument is a number"
-                );
-            }
             if (args[0] > 100) {
-                return message.reply("You cannot delete more than 100 messages");
+                return await message.reply("You cannot delete more than 100 messages");
             }
-            if (args[0] < 1) {
-                return message.reply(
+            if (args[0] < 1 || isNaN(args[0])) {
+                return await message.reply(
                     "Enter a valid number in the range of 0 to 100"
                 );
             }
-            let amount = parseInt(args[0]) + 1;
-            await message.channel.messages
-                .fetch({ limit: amount })
-                .then((messages) => message.channel.bulkDelete(messages));
-        } else {
+            let amount = parseInt(args[0]);
+            await message.delete();
+            await message.channel.bulkDelete(amount);
+        }
+        else {
             await message.channel.send("Noob, you don't have perms to purge");
         }
     }
@@ -207,9 +199,12 @@ class Commands {
     kick = async(message, args) => {
         this.message=message;
         let modLogs = this.client.channels.cache.get(config.modlogs);
+
+        // Kick permissionf only for the admin and moderators
         if(message.member.roles.cache.some(
             (role) => [config.admin, config.mod].includes(role.id)
         )){
+            // Find target member to be kicked
             const target=message.mentions.users.first();
             let reason="";
             for(let i=1;i<args.length;++i){
@@ -217,24 +212,24 @@ class Commands {
             }
             if(target){
                 const memberTarget=message.guild.members.cache.get(target.id);
-                if(reason){
+                if(!reason) reason = "No reason mentioned";
+
+                // Some people have DMs closed
+                try {
                     await memberTarget.send(`You have been kicked from **${message.guild.name}** \nReason:${reason}`);
-                    await message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`);
-                    await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason:${reason}`);
+                } catch (error) {
+                    await message.channel.send("DMs were closed");
                 }
-                else{
-                    await memberTarget.send(`You have been kicked from **${message.guild.name}** \nReason: No reason mentioned`);
-                    await message.channel.send(`**${target.tag}** has been kicked \nReason: No reason mentioned`);
-                    await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason: No reason mentioned`);
-                }
+                await message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`);
+                await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason:${reason}`);
                 await memberTarget.kick(reason);
             }
             else{
-                message.reply("Please mention soemone to kick");
+                await message.reply("Please mention soemone to kick");
             }
         }
         else{
-            message.reply("Noob you can't do that");
+            await message.reply("Noob you can't do that");
         }
     } 
 };
