@@ -1,5 +1,5 @@
 {
-    "prefix": "_",
+    "prefix": "!",
     "commands": [
         "ping",
         "uptime",
