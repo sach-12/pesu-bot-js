@@ -9,6 +9,10 @@ class Misc {
         ];
     }
 
+    sleep = (seconds) => {
+        return new Promise(resolve => setTimeout(resolve, seconds*1000))
+    }
+
     
 }
 const misc = new Misc()

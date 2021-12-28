@@ -2,12 +2,13 @@
 
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
+const {sleep} = require('./misc');
 
 
 class Verification {
     constructor() {
         this.commands = [
-            "verify",
+            "verify", // TODO: Embedding
             // "info",
             // "deverify",
             // "file"
@@ -15,12 +16,19 @@ class Verification {
     }
     verify = async (message, args) => {
         clientInfo.message = message;
+        await message.channel.sendTyping();
+
+        var purgeMessageList = [message]; // Accumulating messages to later purge
 
         // Check for verified role already present
         if (message.member.roles.cache.some(
             (role) => [config.verified].includes(role.id)
         )) {
-            return await message.reply("You're already verified. Are you trying to steal someone's identity, you naughty little...");
+            const msg2 = await message.reply("You're already verified. Are you trying to steal someone's identity, you naughty little...");
+            purgeMessageList.push(msg2);
+            await sleep(5);
+            await message.channel.bulkDelete(purgeMessageList);
+            return;
         }
 
         // Mongoose for user data
@@ -28,7 +36,11 @@ class Verification {
 
         // Check if arguments are present
         if (args.length == 0) {
-            return await message.reply("Put your SRN/PRN");
+            const msg2 = await message.reply("Put your SRN/PRN");
+            purgeMessageList.push(msg2);
+            await sleep(5);
+            await message.channel.bulkDelete(purgeMessageList);
+            return;
         }
 
         // Get SRN/PRN, named as USN from here on
@@ -58,7 +70,10 @@ class Verification {
             finder = {PRN: usn};
         }
         else {
-            await message.reply("Check your SRN/PRN and try again");
+            const msg2 = await message.reply("Check your SRN/PRN and try again");
+            purgeMessageList.push(msg2);
+            await sleep(5);
+            await message.channel.bulkDelete(purgeMessageList);
             return;
         }
 
@@ -71,17 +86,21 @@ class Verification {
 
         // Get PESU academy details from SRN/PRN
         const batchRes = await dbc.findOne(finder);
-        console.log(batchRes);
         if(batchRes === null ){
-            await message.reply("Given SRN/PRN not found. Try again");
+            const msg2 = await message.reply("Given SRN/PRN not found. Try again");
+            purgeMessageList.push(msg2);
+            await sleep(5);
+            await message.channel.bulkDelete(purgeMessageList);
             return;
         }
 
         // To check if given SRN is already verified
         const verRes = await verified.findOne({PRN: batchRes.PRN});
-        console.log(verRes);
         if(verRes != null) {
-            await message.reply("SRN already verified");
+            const msg2 = await message.reply("SRN already verified");
+            purgeMessageList.push(msg2);
+            await sleep(5);
+            await message.channel.bulkDelete(purgeMessageList);
             return;
         }
 
@@ -89,36 +108,92 @@ class Verification {
         var validate = ""; // User response. Will be filled in message collector later
         var check = ""; // Database response with which validation happens
         if(sec === true) {
-            await message.reply("Now enter your section to complete verification");
+            var msg2 = await message.reply("Now enter your section to complete verification");
             validate = "Section ";
             check = batchRes.Section;
         }
         else {
-            await message.reply("Now enter your PRN to complete verification");
+            var msg2 = await message.reply("Now enter your PRN to complete verification");
             check = batchRes.PRN;
         }
+        purgeMessageList.push(msg2);
 
         // Message collector for validation response by user
         const filter = m => m.author.id === message.author.id // Filter for message collector
         const collector = message.channel.createMessageCollector({filter, max: 1, time: 30000}); //Timeout in ms
-        collector.on('collect', async function(message) {
+        var success = null;
+        collector.on('collect', function(msg) {
             // If Section/PRN matches and verification success
-            // TODO: Add appropriate roles
-            validate += message.content.toUpperCase();
-            if (check === validate) {
-                await message.channel.send("Verification success");
-                collector.stop;
+            var msg3 = msg;
+            purgeMessageList.push(msg3);
+            validate += msg.content.toUpperCase();
+            if (check===validate){
+                success = true;
             }
             else {
-                await message.channel.send("Verification failed");
-                collector.stop;
+                success = false;
             }
+            message = msg
         });
         collector.on('end', async function(collected) {
             // Timeout message
             if(collected.size === 0){
-                await message.channel.send("Timed out. Try again");
+                const msg4 = await message.channel.send("Timed out. Try again");
+                purgeMessageList.push(msg4);
             }
+            else {
+                // On validation success
+                if(success === true) {
+                    const msg4 = await message.reply("Verification success");
+                    purgeMessageList.push(msg4);
+
+                    // Get appropriate role based on branch and year of study
+                    if (year === "18"){
+                        const roleId = "802008729191972905";
+                        var role = message.guild.roles.cache.find((r) => r.id === roleId);
+                    }
+                    else if (year === "19"){
+                        const roleStr = batchRes.CandB.toString().replace(' Campus', '').replace(' ', '').replace('BIOTECHNOLOGY','BT')
+                        var role = message.guild.roles.cache.find((r) => r.name === roleStr)
+                    }
+                    else if (year === "20"){
+                        const roleStr = batchRes.Branch + "(Junior)"
+                        var role = message.guild.roles.cache.find((r) => r.name === roleStr)
+                    }
+                    else {
+                        const roleStr = batchRes.Branch + "(Kid)"
+                        var role = message.guild.roles.cache.find((r) => r.name === roleStr)
+                    }
+
+                    // Get verified and 'just joined' role
+                    const verified_role = message.guild.roles.cache.find((r) => r.id === config.verified);
+                    const just_joined_role = message.guild.roles.cache.find((r) => r.id === config.just_joined);
+
+                    // Add required roles and remove just joined role
+                    await message.member.roles.add([role, verified_role]);
+                    await message.member.roles.remove(just_joined_role);
+
+                    // Add data to verified collection in mongoDB
+                    const verifiedDoc = new verified(
+                        {
+                            Username: message.member.nickname,
+                            ID: message.member.id.toString(),
+                            PRN: batchRes.PRN
+                        }
+                    );
+                    await verifiedDoc.save(function (err, verified) {
+                        if (err) throw err;
+                    });
+                }
+                else {
+                    const msg4 = await message.reply("Verification failed");
+                    purgeMessageList.push(msg4);
+                }
+            }
+
+            // Purge the messages
+            await sleep(5);
+            await message.channel.bulkDelete(purgeMessageList);
         });
     }
 
