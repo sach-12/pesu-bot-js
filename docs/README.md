@@ -36,13 +36,18 @@ Refer to the python code [here](https://github.com/sach-12/pesu-bot)
 │   ├── config.json
 │   ├── index.js 
 │   ├── client-commands
-│   │   └── commands.js
+│   │   ├── clientHelper.js
+│   │   ├── dev.js
+│   │   ├── mod.js
+│   │   ├──verification.js
+│   │   ├── utils.js
+│   │   └── misc.js
 │   ├── node_modules
 │   │   └── All modules are included in source code.
 ```
 
 ## Creating Commands
-Creating a new command is simple, add a new export in the `/client-commands/commands.js` calling it whatever you want the command to be called, for example **ping**
+Creating a new command is simple, add a new export in the `/client-commands/appropriateFile.js` calling it whatever you want the command to be called, for example **ping**
 
 Add the following code to the file. In every command you will always need to use this format. 
 
@@ -50,16 +55,24 @@ Add the following code to the file. In every command you will always need to use
 
 ```javascript
     ping: function(message) {
-        this.message = message;
+        clientInfo.message = message;
         message.channel.send({
-            content: `Pong!!!\nPing =${this.client.ws.ping} ms`
+            content: `Pong!!!\nPing =${clientInfo.client.ws.ping} ms`
         });
     },
 ```
 **Make sure to add the following line to every command**
-`this.message = message;`
-Also make sure to add the command in `config.json`
+`clientInfo.message = message;`
+Also make sure to add the command in `config.json` and `this.commands` of that particular file
 
+The **client** attribute is a exportable from `clientHelper.js` file.
+
+
+The meaning of each file are as follows:
+ - **utils.js** for commands anyone can use
+ - **verification.js** for anything verification related
+ - **mod.js** & **dev.js** self explanatory
+ - **misc.js** for anything that's left out
 
 Further documentation can be found [here](https://discord.js.org/#/)
 
