@@ -6,7 +6,7 @@ const prefix = config["prefix"];
 const availableCommands = config["commands"];
 
 
-const { 
+const {
     Client,
     Intents
 } = require('discord.js');
@@ -19,15 +19,20 @@ botIntents.add(
 );
 
 // Create a new client instance
-const client = new Client(
-    {intents: botIntents}
-);
+const client = new Client({
+    intents: botIntents
+});
 
-const commandFunctions = require("./client-commands/commands");
+const clientInfo = require("./client-commands/clientHelper");
+const util = require("./client-commands/utils");
+const dev = require("./client-commands/dev");
+const verification = require("./client-commands/verification");
+const moderation = require("./client-commands/mod");
+const misc = require("./client-commands/misc");
 
 client.once('ready', () => {
     console.log('Ready!');
-    commandFunctions.init(client);
+    clientInfo.init(client);
 });
 client.on('messageCreate', (message) => {
 
@@ -35,17 +40,33 @@ client.on('messageCreate', (message) => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
+    if(util.commands.includes(command)){
+        // fetching this command from within util
+        eval("util." + command)(message,args);
+
+    } else if (dev.commands.includes(command)){
+        // fetching this command from within dev
+        eval("dev." + command)(message,args);
+
+    } else if (verification.commands.includes(command)){
+        // fetching this command from within verification
+        eval("verification." + command)(message,args);
+
+    } else if (moderation.commands.includes(command)){
+        // fetching this command from within moderation
+        eval("moderation." + command)(message,args);
+
+    } else if (misc.commands.includes(command)){
+        // fetching this command from within misc
+        eval("misc." + command)(message,args);
     
-    if (availableCommands.includes(command)) {
-        eval("commandFunctions."+command)(message, args);
-    }
-    else {
+    } else {
         message.reply("I have no response for this shit");
     }
 });
 
 process.on("uncaughtException", function(err) {
-    commandFunctions.error(err);
+    clientInfo.error(err);
     // console.log("Caught exception: " + err);
 });
 
