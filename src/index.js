@@ -1,9 +1,10 @@
+// Bot token from env
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
 
+// Bot prefix
 const config = require('./config.json');
 const prefix = config["prefix"];
-const availableCommands = config["commands"];
 
 
 const {
@@ -11,6 +12,7 @@ const {
     Intents
 } = require('discord.js');
 
+// Bot Intents
 const botIntents = new Intents();
 botIntents.add(
     Intents.FLAGS.GUILDS,
@@ -23,6 +25,7 @@ const client = new Client({
     intents: botIntents
 });
 
+// Commands from various files
 const clientInfo = require("./client-commands/clientHelper");
 const util = require("./client-commands/utils");
 const dev = require("./client-commands/dev");
@@ -30,10 +33,13 @@ const verification = require("./client-commands/verification");
 const moderation = require("./client-commands/mod");
 const misc = require("./client-commands/misc");
 
+
 client.once('ready', () => {
     console.log('Ready!');
     clientInfo.init(client);
 });
+
+
 client.on('messageCreate', (message) => {
 
     if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -65,6 +71,8 @@ client.on('messageCreate', (message) => {
     }
 });
 
+
+// Error handling
 process.on("uncaughtException", function(err) {
     clientInfo.error(err);
     // console.log("Caught exception: " + err);
