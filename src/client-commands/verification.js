@@ -2,18 +2,20 @@
 
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
-const sleep = require('./misc');
+const {sleep} = require('./misc');
+const {MessageEmbed} = require('discord.js')
 
 
 class Verification {
     constructor() {
         this.commands = [
             "verify", // TODO: Embedding
-            // "info",
+            "info",
             // "deverify",
             // "file"
         ];
     }
+
     verify = async (message, args) => {
         clientInfo.message = message;
         await message.channel.sendTyping();
@@ -150,7 +152,7 @@ class Verification {
                     // Get appropriate role based on branch and year of study
                     if (year === "18"){
                         const roleId = "802008729191972905";
-                        var role = message.guild.roles.cache.find((r) => r.id === roleId);
+                        var role = message.guild.roles.cache.get(roleId);
                     }
                     else if (year === "19"){
                         const roleStr = batchRes.CandB.toString().replace(' Campus', '').replace(' ', '').replace('BIOTECHNOLOGY','BT')
@@ -166,8 +168,8 @@ class Verification {
                     }
 
                     // Get verified and 'just joined' role
-                    const verified_role = message.guild.roles.cache.find((r) => r.id === config.verified);
-                    const just_joined_role = message.guild.roles.cache.find((r) => r.id === config.just_joined);
+                    const verified_role = message.guild.roles.cache.get(config.verified);
+                    const just_joined_role = message.guild.roles.cache.get(config.just_joined);
 
                     // Add required roles and remove just joined role
                     await message.member.roles.add([role, verified_role]);
@@ -195,6 +197,114 @@ class Verification {
             await sleep(5);
             await message.channel.bulkDelete(purgeMessageList);
         });
+    }
+
+    info = async (message, args) => {
+        clientInfo.message = message;
+        await message.channel.sendTyping();
+
+        // Check appropriate roles
+        if (message.member.roles.cache.some((role => [config.admin, config.mod, config.botDev].includes(role.id)))) {
+            if (args.length == 0) {
+                await message.reply("Mention a user to get info about")
+            }
+            else {
+                // Mentions check
+                // Since reply is also a mention technically, need to remove it first if it exists
+                if(message.type === "REPLY"){
+                    message.mentions.members.delete(message.mentions.repliedUser.id);
+                }
+                var membMention = message.mentions.members.first();
+
+                // Get arguments
+                const mem = args[0].toString();
+
+                // Find member ID based on either mention, nickname or ID
+                const member = message.guild.members.cache.find((m) => {
+                    if(membMention != null) {
+                        return membMention.id === m.id
+                    }
+                    else if (isNaN(mem)) {
+                        return mem === m.nickname
+                    }
+                    else {
+                        return mem === m.id
+                    }
+                })
+                if(member === null) {
+                    await message.reply("Mention a valid user (either @ them or type their name or put their user ID")
+                }
+                else{
+
+                    // Connect to MongoDB
+                    const mongoose = require('mongoose');
+                    const {batch_2018, batch_2019, batch_2020, batch_2021, verified} = require('./models');
+                    mongoose.connect('mongodb://localhost:27017/pesu',
+                    {
+                        useNewUrlParser: true,
+                        useUnifiedTopology: true
+                    });
+
+                    // Get user data from verified collection
+                    const verRes = await verified.findOne({ID: member.id});
+                    if(verRes === null){
+                        await message.reply("This user is not verified yet")
+                        return
+                    }
+
+                    // Get year of study for getting batch data
+                    const year = verRes.PRN.substring(6, 8)
+                    let dbc = null;
+                    if(year === "18"){
+                        dbc = batch_2018
+                    }
+                    else if(year === "19"){
+                        dbc = batch_2019
+                    }
+                    else if(year === "20"){
+                        dbc = batch_2020
+                    }
+                    else{
+                        dbc = batch_2021
+                    }
+
+                    // Get Batch Data for remaining data
+                    const batchRes = await dbc.findOne({PRN: verRes.PRN})
+                    const details = {
+                        "Username": verRes.Username,
+                        "MemberID": verRes.ID,
+                        "PRN": batchRes.PRN,
+                        "SRN": batchRes.SRN,
+                        "Semester": batchRes.Semester,
+                        "Section": batchRes.Section,
+                        "Cycle": batchRes.Cycle,
+                        "Stream/Campus": batchRes.CandB,
+                        "Stream": batchRes.Branch,
+                        "Campus": batchRes.Campus
+                    }
+
+                    // Create Embed to send
+                    let sendEmbed = new MessageEmbed(
+                        {
+                            title: "User Data",
+                            timestamp: Date.now(),
+                            color: "0x48BF91"
+                        }
+                    )
+
+                    // Add each details field in the embed
+                    for (const key in details) {
+                        sendEmbed.addField(key, details[key], true)
+                    }
+                    await message.reply({
+                        embeds: [sendEmbed]
+                    })
+                }
+            }
+        }
+        else {
+            await message.reply("You are not authorised to run this command")
+        }
     }
 
 }
