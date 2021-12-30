@@ -1,13 +1,16 @@
 {
     "prefix": "!",
     "commands": [
-        "ping",
+        "verify",
+
         "uptime",
-        "echo",
+        "ping",
         "support",
-        "verify"
-        ,"purge"
-        ,"kick"
+
+        "kick",
+
+        "echo",
+        "purge"
     ],
 
     "admin": "742800061280550923",

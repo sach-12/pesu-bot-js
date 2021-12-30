@@ -2,7 +2,7 @@
 
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
-const {sleep} = require('./misc');
+const sleep = require('./misc');
 
 
 class Verification {

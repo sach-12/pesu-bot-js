@@ -1,6 +1,6 @@
 # PESU bot in Javascript
 <h2 align="center">
-    <p>Rewrite for PESU Discord bot-js in Javascript</p>
+    <p>Rewrite for PESU Discord bot in Javascript</p>
 <h2>
 <p align="center">
     <a href="https://github.com/sach-12/pesu-bot-js/actions" alt="Build status">
@@ -20,10 +20,10 @@ Refer to the python code [here](https://github.com/sach-12/pesu-bot)
 
 
 ## Setup
-* Download the repo 
+* Clone the repo 
 * Edit the **.env** adding your BOT's token
 * Do **npm install** inside the src folder
-* set up the **config.json** in the following format
+* Set up the **config.json** in the following format
 
 ![image](https://imgur.com/hwABak8.png)
 * Start the BOT using the commmand **node index.js** in the same directory as **index.js**
@@ -39,7 +39,7 @@ Refer to the python code [here](https://github.com/sach-12/pesu-bot)
 │   │   ├── clientHelper.js
 │   │   ├── dev.js
 │   │   ├── mod.js
-│   │   ├──verification.js
+│   │   ├── verification.js
 │   │   ├── utils.js
 │   │   └── misc.js
 │   ├── node_modules
@@ -72,7 +72,7 @@ The meaning of each file are as follows:
  - **utils.js** for commands anyone can use
  - **verification.js** for anything verification related
  - **mod.js** & **dev.js** self explanatory
- - **misc.js** for anything that's left out
+ - **misc.js** for helper functions
 
 Further documentation can be found [here](https://discord.js.org/#/)
 
@@ -82,8 +82,7 @@ If you would like to contribute to the project please open a PR (Pull Request) c
 If you wish to contribute to the bot, run these steps:
 * Fork this repository or create branch in your username
 
-* Do whatever changes you wish to do and create a pull request with the following information furnished in the request message: The cog you wish to change | What did you change
-* Send a review request to any of the following members: Flab-E, sach-12, Mre11i0t and/or ArvindAROO.
+* Do whatever changes you wish to do and create a pull request with the following information furnished in the request message: The file you wish to change | What did you change
 * Wait for approval for reviewers. Your PR may be directly accepted or requested for further changes.
 * If you are accepted, you will be added to the contributors list.
 

@@ -1,6 +1,4 @@
-// commands anyone can use
-const config = require('../config.json');
-const clientInfo = require("./clientHelper");
+// Helper functions for other files
 
 class Misc {
     constructor() {
@@ -9,9 +7,8 @@ class Misc {
         ];
     }
 
-    sleep = (seconds) => {
-        return new Promise(resolve => setTimeout(resolve, seconds*1000))
-    }
+    sleep = (seconds) => 
+        new Promise(resolve => setTimeout(resolve, seconds*1000))
 
     
 }

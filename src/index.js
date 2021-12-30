@@ -1,3 +1,5 @@
+// TODO -> Interactions and events
+
 // Bot token from env
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
@@ -31,7 +33,6 @@ const util = require("./client-commands/utils");
 const dev = require("./client-commands/dev");
 const verification = require("./client-commands/verification");
 const moderation = require("./client-commands/mod");
-const misc = require("./client-commands/misc");
 
 
 client.once('ready', () => {
@@ -62,10 +63,6 @@ client.on('messageCreate', (message) => {
         // fetching this command from within moderation
         eval("moderation." + command)(message,args);
 
-    } else if (misc.commands.includes(command)){
-        // fetching this command from within misc
-        eval("misc." + command)(message,args);
-    
     } else {
         message.reply("I have no response for this shit");
     }
@@ -75,7 +72,6 @@ client.on('messageCreate', (message) => {
 // Error handling
 process.on("uncaughtException", function(err) {
     clientInfo.error(err);
-    // console.log("Caught exception: " + err);
 });
 
 client.login(TOKEN);
