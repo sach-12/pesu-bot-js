@@ -1,12 +1,8 @@
-//developmental commands
+// Developmental commands and commands BotDev can use
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 
 class DevCommands {
-    //TODO:
-    // - git pull
-    // - restart
-    // - bash
 
     constructor() {
         this.commands = [

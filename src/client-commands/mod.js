@@ -1,11 +1,15 @@
-//moderation functions
+// Moderation functions
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 
 class Moderation {
     constructor() {
         this.commands = [
-            "kick"
+            "kick",
+            // "mute",
+            // "unmute",
+            // "lock",
+            // "unlock"
         ];
     }
     kick = async(message, args) => {

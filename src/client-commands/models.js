@@ -1,3 +1,5 @@
+// File for mongoose models
+
 const mongoose = require('mongoose');
 
 const BatchSchema = new mongoose.Schema(
