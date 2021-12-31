@@ -178,7 +178,7 @@ class Verification {
                     // Add data to verified collection in mongoDB
                     const verifiedDoc = new verified(
                         {
-                            Username: message.member.nickname,
+                            Username: message.member.displayName,
                             ID: message.member.id.toString(),
                             PRN: batchRes.PRN
                         }

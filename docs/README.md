@@ -38,6 +38,7 @@ Refer to the python code [here](https://github.com/sach-12/pesu-bot)
 │   ├── client-commands
 │   │   ├── clientHelper.js
 │   │   ├── dev.js
+|   |   |── events.js
 │   │   ├── mod.js
 │   │   ├── verification.js
 │   │   ├── utils.js
@@ -73,6 +74,7 @@ The meaning of each file are as follows:
  - **verification.js** for anything verification related
  - **mod.js** & **dev.js** self explanatory
  - **misc.js** for helper functions
+ - **events.js** for client event listeners
 
 Further documentation can be found [here](https://discord.js.org/#/)
 
