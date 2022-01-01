@@ -3,7 +3,7 @@
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 const {sleep} = require('./misc');
-const {MessageEmbed} = require('discord.js')
+const {MessageEmbed, DiscordAPIError} = require('discord.js')
 
 
 class Verification {
@@ -20,6 +20,27 @@ class Verification {
         clientInfo.message = message;
         await message.channel.sendTyping();
 
+        // Embed objects
+        let successEmbed = new MessageEmbed({
+            title: "Success",
+            color: "GREEN",
+            timestamp: Date.now()
+        })
+
+        let failEmbed = new MessageEmbed({
+            title: "Fail",
+            color: "RED",
+            timestamp: Date.now()
+        })
+
+        let processEmbed = new MessageEmbed({
+            title: "Verification",
+            color: "BLUE",
+            timestamp: Date.now()
+        })
+            .addField("Process for 2019 and 2020 batch", "1. Enter SRN (PES1UG19.....) as argument\n2. Enter PRN (PES12019.....) as text when prompted by the bot")
+            .addField("Process for 2018 and 2021 batch", "1. Enter PRN (PES12018.....) as argument\n2. Enter section as text when prompted by the bot");
+
         var purgeMessageList = [message]; // Accumulating messages to later purge
 
         // Check for verified role already present
@@ -28,19 +49,16 @@ class Verification {
         )) {
             const msg2 = await message.reply("You're already verified. Are you trying to steal someone's identity, you naughty little...");
             purgeMessageList.push(msg2);
-            await sleep(5);
+            await sleep(10);
             await message.channel.bulkDelete(purgeMessageList);
             return;
         }
 
-        // Mongoose for user data
-        const mongoose = require('mongoose');
-
         // Check if arguments are present
         if (args.length == 0) {
-            const msg2 = await message.reply("Put your SRN/PRN");
+            const msg2 = await message.reply({embeds: [processEmbed]});
             purgeMessageList.push(msg2);
-            await sleep(5);
+            await sleep(30);
             await message.channel.bulkDelete(purgeMessageList);
             return;
         }
@@ -72,12 +90,15 @@ class Verification {
             finder = {PRN: usn};
         }
         else {
-            const msg2 = await message.reply("Check your SRN/PRN and try again");
+            const msg2 = await message.reply({content: "Check your SRN/PRN and try again", embeds: [processEmbed]});
             purgeMessageList.push(msg2);
-            await sleep(5);
+            await sleep(30);
             await message.channel.bulkDelete(purgeMessageList);
             return;
         }
+
+        // Mongoose for user data
+        const mongoose = require('mongoose');
 
         // Mongoooooooooooooooooooooooooooose
         mongoose.connect('mongodb://localhost:27017/pesu',
@@ -89,20 +110,18 @@ class Verification {
         // Get PESU academy details from SRN/PRN
         const batchRes = await dbc.findOne(finder);
         if(batchRes === null ){
-            const msg2 = await message.reply("Given SRN/PRN not found. Try again");
-            purgeMessageList.push(msg2);
-            await sleep(5);
-            await message.channel.bulkDelete(purgeMessageList);
+            const msg2 = await message.reply({content: "Given SRN/PRN not found. Try again", embeds: [processEmbed]});
             return;
         }
 
         // To check if given SRN is already verified
         const verRes = await verified.findOne({PRN: batchRes.PRN});
         if(verRes != null) {
-            const msg2 = await message.reply("SRN already verified");
-            purgeMessageList.push(msg2);
-            await sleep(5);
-            await message.channel.bulkDelete(purgeMessageList);
+            const adminRole = message.guild.roles.cache.get(config.admin).name
+            const botDevRole = message.guild.roles.cache.get(config.botDev).name
+            const msg2 = await message.reply(`You have already been verified.\n\
+            To avoid spamming, we allow only one account per user.\n\
+            If you think someone else has used your SRN, please ping \`${adminRole}\` or \`${botDevRole}\` without fail`);
             return;
         }
 
@@ -122,7 +141,7 @@ class Verification {
 
         // Message collector for validation response by user
         const filter = m => m.author.id === message.author.id // Filter for message collector
-        const collector = message.channel.createMessageCollector({filter, max: 1, time: 30000}); //Timeout in ms
+        const collector = message.channel.createMessageCollector({filter, max: 1, time: 60000}); //Timeout in ms
         var success = null;
         collector.on('collect', function(msg) {
             // If Section/PRN matches and verification success
@@ -140,13 +159,22 @@ class Verification {
         collector.on('end', async function(collected) {
             // Timeout message
             if(collected.size === 0){
-                const msg4 = await message.channel.send("Timed out. Try again");
+                failEmbed.addField("Time-out", "You took too long to respond. Time limit is 1 minute. Try again")
+                const msg4 = await message.reply({embeds: [failEmbed]});
                 purgeMessageList.push(msg4);
             }
             else {
                 // On validation success
                 if(success === true) {
-                    const msg4 = await message.reply("Verification success");
+                    successEmbed.addField("PRN", batchRes.PRN, true)
+                        .addField("SRN", batchRes.SRN, true)
+                        .addField("Semester", batchRes.Semester, true)
+                        .addField("Section", batchRes.Section, true)
+                        .addField("Cycle", batchRes.Cycle, true)
+                        .addField("Stream/Campus", batchRes.CandB, true)
+                        .addField("Stream", batchRes.Branch, true)
+                        .addField("Campus", batchRes.Campus, true)
+                    const msg4 = await message.reply({embeds: [successEmbed]});
                     purgeMessageList.push(msg4);
 
                     // Get appropriate role based on branch and year of study
@@ -186,15 +214,20 @@ class Verification {
                     await verifiedDoc.save(function (err, verified) {
                         if (err) throw err;
                     });
+
+                    // Send success embed to bot logs
+                    const botLogs = message.guild.channels.cache.get(config.logs)
+                    await botLogs.send({content: `<@${message.member.id}>`,embeds: [successEmbed]})
                 }
                 else {
-                    const msg4 = await message.reply("Verification failed");
+                    failEmbed.addField("Validation failed", "Given PRN/Section does not match the record")
+                    const msg4 = await message.reply({embeds: [failEmbed]});
                     purgeMessageList.push(msg4);
                 }
             }
 
             // Purge the messages
-            await sleep(5);
+            await sleep(10);
             await message.channel.bulkDelete(purgeMessageList);
         });
     }
@@ -286,7 +319,7 @@ class Verification {
                     // Create Embed to send
                     let sendEmbed = new MessageEmbed(
                         {
-                            title: "User Data",
+                            title: "User Info",
                             timestamp: Date.now(),
                             color: "0x48BF91"
                         }
@@ -349,9 +382,18 @@ class Verification {
                         // Remove all roles of the member
                         let roleCollection = member.roles.cache
                         roleCollection.delete("742797665301168220") // @everyone role should be removed from the collection
-                        await member.roles.remove(roleCollection);
                         const just_joined = member.guild.roles.cache.get(config.just_joined); // Adding just joined role
-                        await member.roles.add(just_joined)
+                        
+                        // De-bugging purpose. Whenever admin or bot dev is testing something, their roles will not be affected
+                        try {
+                            await member.roles.remove(roleCollection);
+                            await member.roles.add(just_joined)
+                        } catch (error) {
+                            if (error instanceof DiscordAPIError){}
+                            else{
+                                throw error
+                            }
+                        }
                         await message.reply("De-verified <@"+member.id+">")
                     }
                     else{
