@@ -9,10 +9,10 @@ const {MessageEmbed, DiscordAPIError} = require('discord.js')
 class Verification {
     constructor() {
         this.commands = [
-            "verify", // TODO: Embedding
+            "verify",
             "info",
             "deverify",
-            // "file"
+            "file"
         ];
     }
 
@@ -231,6 +231,7 @@ class Verification {
             await message.channel.bulkDelete(purgeMessageList);
         });
     }
+    
 
     info = async (message, args) => {
         clientInfo.message = message;
@@ -340,9 +341,11 @@ class Verification {
         }
     }
 
+
     deverify = async(message, args) => {
         clientInfo.message = message;
         await message.channel.sendTyping();
+
         // Check appropriate roles
         if (message.member.roles.cache.some((role => [config.admin, config.mod, config.botDev].includes(role.id)))) {
             if (args.length == 0) {
@@ -401,6 +404,46 @@ class Verification {
                     }
                 }
             }
+        }
+        else {
+            await message.reply("You are not authorised to run this command")
+        }
+    }
+
+
+    file = async(message) => {
+        clientInfo.message = message;
+        await message.channel.sendTyping();
+        
+        // Check appropriate roles
+        if (message.member.roles.cache.some((role => [config.admin, config.botDev].includes(role.id)))) {
+            await message.reply("You have clearance")
+
+            // Get bot-test channel to send the file to
+            const botTest = message.guild.channels.cache.get("749473757843947671")
+            await botTest.sendTyping()
+
+            // Mongoose for user data
+            const mongoose = require('mongoose')
+            const {verified} = require('./models')
+            const fs = require('fs')
+
+            mongoose.connect('mongodb://localhost:27017/pesu',
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+
+            const res = await verified.find().lean()
+
+            // Write to file and send
+            fs.writeFileSync('verified.json', JSON.stringify(res, null, 4))
+            await botTest.send({files: ["./verified.json"]})
+
+
+        }
+        else {
+            await message.reply("You are not authorised to run this command")
         }
     }
 

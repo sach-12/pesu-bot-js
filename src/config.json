@@ -4,6 +4,7 @@
         "verify",
         "info",
         "deverify",
+        "file",
 
         "uptime",
         "ping",
