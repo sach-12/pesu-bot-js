@@ -1,4 +1,4 @@
-// Helper functions for other files
+// Helper functions used in other files
 
 class Misc {
     constructor() {
@@ -10,7 +10,8 @@ class Misc {
     sleep = (seconds) => 
         new Promise(resolve => setTimeout(resolve, seconds*1000))
 
-    deverify = async(mid) => {
+    // Function to deverify members when they leave the server or when !d is used
+    deverifyFunc = async(mid) => {
         const mongoose = require('mongoose')
         const {verified} = require('./models')
 

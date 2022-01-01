@@ -23,8 +23,8 @@ class Events {
     guildMemberRemove = async(member) => {
         const botLogs = member.guild.channels.cache.get(config.logs)
         await botLogs.send(`${member.displayName} left\ni.e., <@${member.id}> just left`)
-        const {deverify} = require("./misc")
-        const ret = await deverify(member.id)
+        const {deverifyFunc} = require("./misc")
+        const ret = await deverifyFunc(member.id)
         if(ret === true) {
             await botLogs.send("De-verified the user")
         }

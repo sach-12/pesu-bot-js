@@ -11,7 +11,7 @@ class Verification {
         this.commands = [
             "verify", // TODO: Embedding
             "info",
-            // "deverify",
+            "deverify",
             // "file"
         ];
     }
@@ -304,6 +304,61 @@ class Verification {
         }
         else {
             await message.reply("You are not authorised to run this command")
+        }
+    }
+
+    deverify = async(message, args) => {
+        clientInfo.message = message;
+        await message.channel.sendTyping();
+        // Check appropriate roles
+        if (message.member.roles.cache.some((role => [config.admin, config.mod, config.botDev].includes(role.id)))) {
+            if (args.length == 0) {
+                await message.reply("Mention a user to get info about")
+            }
+            else {
+                // Mentions check
+                // Since reply is also a mention technically, need to remove it first if it exists
+                if(message.type === "REPLY"){
+                    message.mentions.members.delete(message.mentions.repliedUser.id);
+                }
+                var membMention = message.mentions.members.first();
+
+                // Get arguments
+                const mem = args[0].toString();
+
+                // Find member ID based on either mention, nickname or ID
+                const member = message.guild.members.cache.find((m) => {
+                    if(membMention != null) {
+                        return membMention.id === m.id
+                    }
+                    else if (isNaN(mem)) {
+                        return mem === m.nickname
+                    }
+                    else {
+                        return mem === m.id
+                    }
+                })
+                if(member === null) {
+                    await message.reply("Mention a valid user (either @ them or type their name or put their user ID")
+                }
+                else{
+                    // Remove member details from verified collection
+                    const {deverifyFunc} = require("./misc")
+                    const ret = await deverifyFunc(member.id)
+                    if(ret === true){
+                        // Remove all roles of the member
+                        let roleCollection = member.roles.cache
+                        roleCollection.delete("742797665301168220") // @everyone role should be removed from the collection
+                        await member.roles.remove(roleCollection);
+                        const just_joined = member.guild.roles.cache.get(config.just_joined); // Adding just joined role
+                        await member.roles.add(just_joined)
+                        await message.reply("De-verified <@"+member.id+">")
+                    }
+                    else{
+                        await message.reply("This user was not verified in the first place")
+                    }
+                }
+            }
         }
     }
 

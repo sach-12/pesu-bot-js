@@ -3,6 +3,7 @@
     "commands": [
         "verify",
         "info",
+        "deverify",
 
         "uptime",
         "ping",
