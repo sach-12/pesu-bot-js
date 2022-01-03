@@ -49,15 +49,7 @@ class Events {
 
             // @everyone or @here ghost ping
             if(allMentions.everyone === true) {
-                ghostPingEmbed.addField("@everyone/@here pings", `<@${message.author.id}> ghost pinged \`@everyone\` in <#${message.channel.id}>`)
-            }
-
-            // Member ghost ping. Filtering out all bot pings
-            if(allMentions.members.filter(member => !member.user.bot).size > 0) {
-                const mentionsCollect = allMentions.members
-                let pingList = ""
-                mentionsCollect.filter(member => !member.user.bot).each(member => pingList += "<@"+member.id+"> ")
-                ghostPingEmbed.addField("Member pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
+                ghostPingEmbed.addField("@everyone/@here pings", `<@${message.author.id}> ghost pinged \`@everyone/@here\` in <#${message.channel.id}>`)
             }
 
             // If any role was ghost pinged
@@ -66,6 +58,14 @@ class Events {
                 let pingList = ""
                 mentionsCollect.each(role => pingList += "<@&"+role.id+"> ")
                 ghostPingEmbed.addField("Role pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
+            }
+            
+            // Member ghost ping. Filtering out all bot pings
+            if(allMentions.members.filter(member => !member.user.bot).size > 0) {
+                const mentionsCollect = allMentions.members
+                let pingList = ""
+                mentionsCollect.filter(member => !member.user.bot).each(member => pingList += "<@"+member.id+"> ")
+                ghostPingEmbed.addField("Member pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
             }
 
             // Send embed if there's any ghost ping to mod logs
@@ -77,7 +77,12 @@ class Events {
             // For sniping
             utils.deletedMessage = message
             await sleep(60)
-            utils.deletedMessage = null
+
+            // Deleted message becomes null after 60 seconds of non-snipe only if the current deletedMessage is the same one
+            // as what triggered the event
+            if(utils.deletedMessage != null && utils.deletedMessage.id === message.id){
+                utils.deletedMessage = null
+            }
         }
     }
 }
