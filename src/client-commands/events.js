@@ -1,5 +1,8 @@
 // This file handles event triggers
 const config = require('../config.json')
+const {sleep, nqnTest} = require("./misc")
+const utils = require("./utils")
+const {MessageEmbed} = require('discord.js')
 
 class Events {
 
@@ -8,7 +11,7 @@ class Events {
             "guildMemberAdd", // Send to bot logs and add just joined role
             "guildMemberRemove", // Send to bot logs and deverify if needed
             "guildMemberUpdate", // Birthday
-            "message delete", // Snipe and ghost ping check
+            "messageDelete", // Snipe and ghost ping check
             "messageReactionAdd" // Polls
         ]
     }
@@ -27,6 +30,54 @@ class Events {
         const ret = await deverifyFunc(member.id)
         if(ret === true) {
             await botLogs.send("De-verified the user")
+        }
+    }
+
+    messageDelete = async(message) => {
+        if(message.author.bot === true) return;
+        await sleep(0.5)
+        const nqn = await nqnTest(message)
+        if(nqn === false) {
+            // To check ghost ping
+            const allMentions = message.mentions
+
+            const ghostPingEmbed = new MessageEmbed({
+                title: "Ghost Ping Alert",
+                timestamp: Date.now(),
+                color: "BLUE"
+            })
+
+            // @everyone or @here ghost ping
+            if(allMentions.everyone === true) {
+                ghostPingEmbed.addField("@everyone/@here pings", `<@${message.author.id}> ghost pinged \`@everyone\` in <#${message.channel.id}>`)
+            }
+
+            // Member ghost ping. Filtering out all bot pings
+            if(allMentions.members.filter(member => !member.user.bot).size > 0) {
+                const mentionsCollect = allMentions.members
+                let pingList = ""
+                mentionsCollect.filter(member => !member.user.bot).each(member => pingList += "<@"+member.id+"> ")
+                ghostPingEmbed.addField("Member pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
+            }
+
+            // If any role was ghost pinged
+            if(allMentions.roles.size > 0) {
+                const mentionsCollect = allMentions.roles
+                let pingList = ""
+                mentionsCollect.each(role => pingList += "<@&"+role.id+"> ")
+                ghostPingEmbed.addField("Role pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
+            }
+
+            // Send embed if there's any ghost ping to mod logs
+            if(ghostPingEmbed.fields.length > 0) {
+                const modLogs = message.guild.channels.cache.get(config.modlogs)
+                await modLogs.send({embeds: [ghostPingEmbed]})
+            }
+
+            // For sniping
+            utils.deletedMessage = message
+            await sleep(60)
+            utils.deletedMessage = null
         }
     }
 }

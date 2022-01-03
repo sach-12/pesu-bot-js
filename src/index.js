@@ -80,6 +80,9 @@ client.on("guildMemberRemove", async(member) => {
     await clientEvent.guildMemberRemove(member)
 })
 
+client.on("messageDelete", async(message) => {
+    await clientEvent.messageDelete(message)
+})
 
 
 // Error handling
