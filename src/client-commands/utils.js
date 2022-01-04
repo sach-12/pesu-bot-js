@@ -13,7 +13,7 @@ class Utils {
             // "pollshow",
             // "help",
             "snipe",
-            // "editsnipe"
+            "editsnipe"
         ];
 
         this.deletedMessage = null;
@@ -63,6 +63,56 @@ class Utils {
             }
             else {
                 await message.channel.send("There is nothing to snipe")
+            }
+        }
+    }
+
+    editsnipe = async (message) => {
+        clientInfo.message = message
+
+        // If no message was stored in edit-snipe
+        if(this.editedMessage === null) {
+            await message.channel.send("No edited message")
+        }
+        else {
+            // Edit-snipes only if the command origin channel is the same as the edited message origin channel
+            if(this.editedMessage.channel.id === message.channel.id){
+                // To check if the message still exists
+                const originnalMessage = await message.channel.messages.fetch(this.editedMessage)
+
+                // If the message exists, get the ID for replying to it
+                let repliedTo = null
+
+                // If the message does not exist, try replying to who he/she replied to instead
+                if(originnalMessage === null) {
+                    const reference = await this.editedMessage.reference
+                    if(reference != null) {
+                        repliedTo = reference.messageId
+                    }
+                }
+
+                // If the message exists, reply to it instead
+                else {
+                    repliedTo = this.editedMessage.id
+                }
+
+                let content = ""
+                // If the command response has nothing to reply to, add the message author tag to the response content
+                if(repliedTo === null){
+                    content += `<@${this.editedMessage.author.id}> `
+                }
+                content += this.editedMessage.content
+
+                await message.channel.send({
+                    content: content,
+                    reply: {
+                        messageReference: repliedTo
+                    }
+                })
+                this.editedMessage = null
+            }
+            else {
+                await message.channel.send("No edited message")
             }
         }
     }
