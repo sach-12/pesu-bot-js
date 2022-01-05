@@ -4,8 +4,8 @@ const config = require('../config.json');
 class Commands {
     constructor() {
         this.startTime = 0,
-            this.client = {},
-            this.message = NaN
+        this.client = {},
+        this.message = NaN
     }
     init = (client) => {
         this.startTime = Math.floor(Date.now() / 1000);

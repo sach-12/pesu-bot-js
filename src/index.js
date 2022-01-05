@@ -80,7 +80,21 @@ client.on("guildMemberRemove", async(member) => {
     await clientEvent.guildMemberRemove(member)
 })
 
+client.on("guildMemberUpdate", async(oldMember, newMember) => {
+    await clientEvent.guildMemberUpdate(oldMember, newMember)
+})
 
+client.on("messageDelete", async(message) => {
+    await clientEvent.messageDelete(message)
+})
+
+client.on("messageUpdate", async(oldMessage, newMessage) => {
+    await clientEvent.messageUpdate(oldMessage, newMessage)
+})
+
+client.on("threadCreate", async(threadChannel) => {
+    await clientEvent.threadCreate(threadChannel)
+})
 
 // Error handling
 process.on("uncaughtException", function(err) {
