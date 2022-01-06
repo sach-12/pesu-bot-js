@@ -1,4 +1,5 @@
 // Moderation functions
+const { MessageEmbed, DiscordAPIError } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 
@@ -14,34 +15,83 @@ class Moderation {
     }
     kick = async(message, args) => {
         clientInfo.message=message;
-        let modLogs = clientInfo.client.channels.cache.get(config.modlogs);
 
-        // Kick permissionf only for the admin and moderators
+        // Kick permission only for the admin and moderators
         if(message.member.roles.cache.some(
             (role) => [config.admin, config.mod].includes(role.id)
         )){
-            // Find target member to be kicked
-            const target=message.mentions.users.first();
-            let reason="";
-            for(let i=1;i<args.length;++i){
-                reason=reason+" "+args[i];
-            }
-            if(target){
-                const memberTarget=message.guild.members.cache.get(target.id);
-                if(!reason) reason = "No reason mentioned";
+            // Help Embed
+            const kickHelpEmbed = new MessageEmbed({
+                title: "Kick",
+                color: "0x48BF91",
+                timestamp: Date.now(),
+                description: "`!kick`\n!kick [Member mention] {Reason: optional}\n\nKicks the member from the server"
+            })
 
+            // Get the reason after removing the first two args
+            const firstArgIncluded = message.content.slice(message.content.indexOf(" ", 1)+1)
+            let reason = firstArgIncluded.slice(firstArgIncluded.indexOf(" ")+1)
+            
+            // This happens when no reason is provided
+            if(reason === firstArgIncluded){
+                reason = "No reason provided"
+            }
+            
+            // Find target member to be kicked
+            // Remove mention caused by reply if it exists
+            if(message.type === "REPLY"){
+                message.mentions.members.delete(message.mentions.repliedUser.id);
+            }
+            const target=message.mentions.members.first();
+            if(target){
+                // To avoid kicing bots
+                if(target.user.bot){
+                    await message.reply("You dare kick one of my brothers you little twat")
+                    return
+                }
+
+                // To avoid kicking admin/mods
+                if(target.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))){
+                    await message.reply("Gomma you can't kick admin/mod")
+                    return
+                }
+
+                // Kick Embed sent to message origin channel
+                const kickEmbed = new MessageEmbed({
+                    title: "",
+                    color: "RED",
+                    description: `<@${target.id}> **was kicked**`,
+                    timestamp: Date.now()
+                })
+
+                // Kick logs sent to mod logs channel
+                const kickLogs = new MessageEmbed({
+                    title: "Kick",
+                    color: "RED",
+                    timestamp: Date.now()
+                })
+                    .addField("User", `<@${target.id}>`, true)
+                    .addField("Moderator", `<@${message.author.id}>`, true)
+                    .addField("Reason", reason, false);
+
+                const modLogs = clientInfo.client.channels.cache.get(config.modlogs);
                 // Some people have DMs closed
                 try {
-                    await memberTarget.send(`You have been kicked from **${message.guild.name}** \nReason:${reason}`);
+                    await target.send(`You have been kicked from **${message.guild.name}**\nReason: ${reason}`);
                 } catch (error) {
-                    await message.channel.send("DMs were closed");
+                    if(error instanceof DiscordAPIError){
+                        await message.channel.send("DMs were closed");
+                    }
+                    else{
+                        throw(error)
+                    }
                 }
-                await message.channel.send(`**${target.tag}** has been kicked \nReason:${reason}`);
-                await modLogs.send(`**${target.tag}** has been kicked by <@${message.member.id}> \nReason:${reason}`);
-                await memberTarget.kick(reason);
+                await message.channel.send({embeds: [kickEmbed]});
+                await modLogs.send({embeds: [kickLogs]});
+                await target.kick(reason);
             }
             else{
-                await message.reply("Please mention soemone to kick");
+                await message.reply({content: "Please mention soemone to kick", embeds: [kickHelpEmbed]});
             }
         }
         else{
