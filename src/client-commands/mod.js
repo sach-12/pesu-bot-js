@@ -1,5 +1,5 @@
 // Moderation functions
-const { MessageEmbed, DiscordAPIError } = require('discord.js');
+const { MessageEmbed, DiscordAPIError, Permissions } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 const { sleep } = require('./misc')
@@ -10,14 +10,15 @@ class Moderation {
             "kick",
             "mute",
             "unmute",
-            // "lock",
-            // "unlock"
+            "lock",
+            "unlock"
         ];
         this.mutedict = {};
     }
 
     kick = async(message, args) => {
         clientInfo.message=message;
+        await message.channel.sendTyping()
 
         // Kick permission only for the admin and moderators
         if(message.member.roles.cache.some(
@@ -100,6 +101,9 @@ class Moderation {
     }
 
     mute = async(message, args) => {
+        clientInfo.message=message;
+        await message.channel.sendTyping()
+
         // Find target member to be muted
         // Remove mention caused by reply if it exists
         if((message.type === "REPLY") && (message.mentions.members.first() != message.mentions.repliedUser.id)){
@@ -252,6 +256,9 @@ class Moderation {
     }
 
     unmute = async(message) => {
+        clientInfo.message=message;
+        await message.channel.sendTyping()
+
         // Find target member to be muted
         // Remove mention caused by reply if it exists
         if((message.type === "REPLY") && (message.mentions.members.first() != message.mentions.repliedUser.id)){
@@ -305,6 +312,133 @@ class Moderation {
         }
         else {
             await message.reply("You are not authorised to do this")
+        }
+    }
+
+    lock = async(message, args) => {
+        clientInfo.message=message;
+        await message.channel.sendTyping()
+
+        // Only admin/mods can use lock command
+        if(message.member.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {
+            // Get target channel and reason to lock
+            let target = message.mentions.channels.first()
+            let reason = "No reason provided"
+            // If no channel is mentioned, target is message origin channel
+            if(target === undefined){
+                target = message.channel
+                if(args[0] != null) {
+                    reason = message.content.substring(message.content.indexOf(args[0]))
+                }
+            }
+            else {
+                if(args[1] != null) {
+                    reason = message.content.substring(message.content.indexOf(args[1]))
+                }
+            }
+
+            // Get permissions override for @everyone role for target channel
+            const perms = target.permissionOverwrites.cache.get(config.everyone)
+
+            // If the channel is already locked
+            if(perms.deny.has(Permissions.FLAGS.SEND_MESSAGES)) {
+                await message.reply("This channel is already locked")
+            }
+            else {
+                // Edit permissions and lock the channel
+                await perms.edit({SEND_MESSAGES: false})
+
+                // Embed variables
+                // Embed to the locked channel announcing the lock and the reason
+                const lockEmbed = new MessageEmbed({
+                    title: "Channel Locked :lock:",
+                    color: "RED",
+                    description: reason,
+                    timestamp: Date.now()
+                })
+                await target.send({embeds: [lockEmbed]})
+
+                // Lock acknowledgment embed reply to the moderator who locked it
+                const lockAckEmbed = new MessageEmbed({
+                    color: "RED",
+                    description: `Locked <#${target.id}>`,
+                    timestamp: Date.now()
+                })
+                await message.reply({embeds: [lockAckEmbed]})
+
+                // Lock logs embed for mod-logs
+                const modLogs = message.guild.channels.cache.get(config.modlogs)
+                const lockLogsEmbed = new MessageEmbed({
+                    title: "Lock",
+                    color: "RED",
+                    timestamp: Date.now()
+                })
+                    .addField("Channel", `<#${target.id}>`, true)
+                    .addField("Moderator", `<@${message.author.id}>`, true)
+                    .addField("Reason", reason, false);
+                await modLogs.send({embeds: [lockLogsEmbed]})
+            }
+        }
+        else {
+            await message.reply("I am not dyno to let you do this")
+        }
+    }
+
+    unlock = async(message) => {
+        clientInfo.message=message;
+        await message.channel.sendTyping()
+
+        // Only admin/mods can use lock command
+        if(message.member.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {
+            // Get target channel to unlock
+            let target = message.mentions.channels.first()
+            // If no channel is mentioned, target is message origin channel
+            if(target === undefined){
+                target = message.channel
+            }
+
+            // Get permissions override for @everyone role for target channel
+            const perms = target.permissionOverwrites.cache.get(config.everyone)
+
+            // If the channel is not locked in the first place
+            if((!perms.allow.has(Permissions.FLAGS.SEND_MESSAGES)) && (!perms.deny.has(Permissions.FLAGS.SEND_MESSAGES))) {
+                await message.reply("This channel ain't locked bruh whatcha doin")
+            }
+            else {
+                // Edit permissions and unlock the channel
+                await perms.edit({SEND_MESSAGES: null})
+
+                // Embed variables
+                // Embed to the unlocked channel announcing the unlock
+                const unlockEmbed = new MessageEmbed({
+                    title: "Channel Unlocked :unlock:",
+                    color: "GREEN",
+                    timestamp: Date.now()
+                })
+                await target.send({embeds: [unlockEmbed]})
+
+                // Unlock acknowledgment embed reply to the moderator who unlocked it
+                const unlockAckEmbed = new MessageEmbed({
+                    color: "GREEN",
+                    description: `Unlocked <#${target.id}>`,
+                    timestamp: Date.now()
+                })
+                await message.reply({embeds: [unlockAckEmbed]})
+
+                // Unlock logs embed for mod-logs
+                const modLogs = message.guild.channels.cache.get(config.modlogs)
+                const unlockLogsEmbed = new MessageEmbed({
+                    title: "Unlock",
+                    color: "GREEN",
+                    timestamp: Date.now()
+                })
+                    .addField("Channel", `<#${target.id}>`, true)
+                    .addField("Moderator", `<@${message.author.id}>`, true);
+                await modLogs.send({embeds: [unlockLogsEmbed]})
+            }
+        }
+        else {
+            await message.reply("You think I am like dyno ah?")
         }
     }
 }
