@@ -40,7 +40,7 @@ class Moderation {
             
             // Find target member to be kicked
             // Remove mention caused by reply if it exists
-            if((message.type === "REPLY") && (message.mentions.members.first() != message.mentions.repliedUser.id)){
+            if((message.type === "REPLY") && (message.mentions.members.first().id != message.mentions.repliedUser.id)){
                 message.mentions.members.delete(message.mentions.repliedUser.id);
             }
             const target=message.mentions.members.first();
@@ -106,7 +106,7 @@ class Moderation {
 
         // Find target member to be muted
         // Remove mention caused by reply if it exists
-        if((message.type === "REPLY") && (message.mentions.members.first() != message.mentions.repliedUser.id)){
+        if((message.type === "REPLY") && (message.mentions.members.first().id != message.mentions.repliedUser.id)){
             message.mentions.members.delete(message.mentions.repliedUser.id);
         }
         const target = message.mentions.members.first();
@@ -261,7 +261,7 @@ class Moderation {
 
         // Find target member to be muted
         // Remove mention caused by reply if it exists
-        if((message.type === "REPLY") && (message.mentions.members.first() != message.mentions.repliedUser.id)){
+        if((message.type === "REPLY") && (message.mentions.members.first().id != message.mentions.repliedUser.id)){
             message.mentions.members.delete(message.mentions.repliedUser.id);
         }
         const target = message.mentions.members.first();
