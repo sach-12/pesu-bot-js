@@ -1,21 +1,18 @@
 // Commands anyone can use
-const { Permissions } = require('discord.js');
+const { Permissions, Collection } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 
 class Utils {
     constructor() {
-        this.commands = [
-            "uptime",
-            "ping",
-            "support",
-            "count",
-            // "poll",
-            // "pollshow",
-            // "help",
-            "snipe",
-            "editsnipe"
-        ];
+        this.commands = new Collection()
+            .set(this.uptime, ["uptime", "ut"])
+            .set(this.ping, ["ping", "tp"])
+            .set(this.support, ["support", "contribute"])
+            .set(this.count, ["count", "c"])
+            // .set(this.poll, ["poll"])
+            // .set(this.pollshow, ["pollshow", "ps"])
+            // .set(this.help, ["help", "h"])
 
         this.deletedMessage = null;
         this.editedMessage = null;

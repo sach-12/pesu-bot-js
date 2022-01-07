@@ -1,18 +1,17 @@
 // Moderation functions
-const { MessageEmbed, DiscordAPIError, Permissions } = require('discord.js');
+const { MessageEmbed, DiscordAPIError, Permissions, Collection } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 const { sleep } = require('./misc')
 
 class Moderation {
     constructor() {
-        this.commands = [
-            "kick",
-            "mute",
-            "unmute",
-            "lock",
-            "unlock"
-        ];
+        this.commands = new Collection()
+            .set(this.kick, ["kick"])
+            .set(this.mute, ["mute"])
+            .set(this.unmute, ["unmute"])
+            .set(this.lock, ["lock"])
+            .set(this.unlock, ["unlock"])
         this.mutedict = {};
     }
 

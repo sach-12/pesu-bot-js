@@ -3,17 +3,16 @@
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 const {sleep} = require('./misc');
-const {MessageEmbed, DiscordAPIError} = require('discord.js')
+const {MessageEmbed, DiscordAPIError, Collection} = require('discord.js')
 
 
 class Verification {
     constructor() {
-        this.commands = [
-            "verify",
-            "info",
-            "deverify",
-            "file"
-        ];
+        this.commands = new Collection()
+            .set(this.verify, ["verify", "VERIFY", "Verify", "V", "v"])
+            .set(this.info, ["info", "i"])
+            .set(this.deverify, ["deverify", "d"])
+            .set(this.file, ["file", "f"])
     }
 
     verify = async (message, args) => {

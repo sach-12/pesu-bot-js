@@ -1,17 +1,17 @@
 // Developmental commands and commands BotDev can use
+const { Collection } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 
 class DevCommands {
 
     constructor() {
-        this.commands = [
-            // "gitpull",
-            // "restart",
-            // "bash",
-            "echo",
-            "purge"
-        ];
+        this.commands = new Collection()
+            .set(this.echo, ["echo", "e"])
+            .set(this.purge, ["purge", "p"])
+            // .set(this.gitpull, ["gitpull", "pull"])
+            // .set(this.restart, ["restart"])
+            // .set(this.bash, ["bash"])
     }
     echo = async (message) => {
         clientInfo.message = message
