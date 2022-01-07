@@ -1,21 +1,18 @@
 // Commands anyone can use
-const { Permissions } = require('discord.js');
+const { Permissions, Collection } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 
 class Utils {
     constructor() {
-        this.commands = [
-            "uptime",
-            "ping",
-            "support",
-            "count",
-            // "poll",
-            // "pollshow",
-            // "help",
-            "snipe",
-            "editsnipe"
-        ];
+        this.commands = new Collection()
+            .set(this.uptime, ["uptime", "ut"])
+            .set(this.ping, ["ping", "tp"])
+            .set(this.support, ["support", "contribute"])
+            .set(this.count, ["count", "c"])
+            // .set(this.poll, ["poll"])
+            // .set(this.pollshow, ["pollshow", "ps"])
+            // .set(this.help, ["help", "h"])
 
         this.deletedMessage = null;
         this.editedMessage = null;
@@ -115,6 +112,7 @@ class Utils {
 
     snipe = async (message) => {
         clientInfo.message = message
+        await message.channel.sendTyping()
 
         // If no message was stored in snipe
         if(this.deletedMessage === null){
@@ -130,12 +128,19 @@ class Utils {
                     repliedTo = reference.messageId
                 }
 
+                // Fetch attachments if any were deleted
+                const fileUrls = []
+                this.deletedMessage.attachments.forEach((attach) => {
+                    fileUrls.push(attach.proxyURL)
+                })
+
                 // Send the deleted message with the reply of the original message if it exists
                 await message.channel.send({
                     content: `<@${this.deletedMessage.author.id}>: ${this.deletedMessage.content}`,
                     reply: {
                         messageReference: repliedTo
-                    }
+                    },
+                    files: fileUrls
                 })
                 this.deletedMessage = null
             }
@@ -175,7 +180,8 @@ class Utils {
                 }
 
                 let content = ""
-                // If the command response has nothing to reply to, add the message author tag to the response content
+                // If the command response has nothing to reply to or if the original message does not exist, 
+                // add the message author tag to the response content
                 if(repliedTo === null || originnalMessage === null){
                     content += `<@${this.editedMessage.author.id}> `
                 }

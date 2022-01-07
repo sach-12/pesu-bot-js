@@ -39,8 +39,8 @@ const clientEvent = require("./client-commands/events")
 
 
 client.once('ready', () => {
-    console.log('Ready!');
     clientInfo.init(client);
+    console.log('Ready!');
 });
 
 
@@ -50,25 +50,24 @@ client.on('messageCreate', async(message) => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
-    if(util.commands.includes(command)){
-        // fetching this command from within util
-        await eval("util." + command)(message,args);
+    let commandFunc = async() => {}
 
-    } else if (dev.commands.includes(command)){
-        // fetching this command from within dev
-        await eval("dev." + command)(message,args);
-
-    } else if (verification.commands.includes(command)){
-        // fetching this command from within verification
-        await eval("verification." + command)(message,args);
-
-    } else if (moderation.commands.includes(command)){
-        // fetching this command from within moderation
-        await eval("moderation." + command)(message,args);
-
-    } else {
-        await message.reply("I have no response for this shit");
+    if(util.commands.some(aliases => aliases.includes(command))) {
+        commandFunc = util.commands.findKey(aliases => aliases.includes(command));
     }
+    else if(dev.commands.some(aliases => aliases.includes(command))) {
+        commandFunc = dev.commands.findKey(aliases => aliases.includes(command))
+    }
+    else if(verification.commands.some(aliases => aliases.includes(command))) {
+        commandFunc = verification.commands.findKey(aliases => aliases.includes(command))
+    }
+    else if(moderation.commands.some(aliases => aliases.includes(command))) {
+        commandFunc = moderation.commands.findKey(aliases => aliases.includes(command))
+    }
+    else {
+        commandFunc = async() => {await message.reply("I have no response for this shit")}
+    }
+    await commandFunc(message, args)
 });
 
 // Other events
