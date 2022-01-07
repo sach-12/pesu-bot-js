@@ -9,8 +9,13 @@
         "uptime",
         "ping",
         "support",
+        "count",
+        "snipe",
+        "editsnipe",
 
         "kick",
+        "mute",
+        "unmute",
 
         "echo",
         "purge"
@@ -21,6 +26,7 @@
     "botDev": "750556082371559485",
     "verified": "749683320941445250",
     "just_joined": "798765678739062804",
+    "muted": "775981947079491614",
 
     "logs": "786084620944146504",
     "modlogs":"778678059879890944",
