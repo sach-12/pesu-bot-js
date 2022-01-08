@@ -2,6 +2,7 @@
 const { Collection } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
+const { shell } = require('./misc')
 
 class DevCommands {
 
@@ -9,10 +10,11 @@ class DevCommands {
         this.commands = new Collection()
             .set(this.echo, ["echo", "e"])
             .set(this.purge, ["purge", "p"])
-            // .set(this.gitpull, ["gitpull", "pull"])
+            .set(this.gitpull, ["gitpull", "pull"])
             // .set(this.restart, ["restart"])
             // .set(this.bash, ["bash"])
     }
+
     echo = async (message) => {
         clientInfo.message = message
         //syntax - `+e <#channelname> whatever to be echoed
@@ -72,6 +74,20 @@ class DevCommands {
         }
         else {
             await message.channel.send("Noob, you don't have perms to purge");
+        }
+    }
+
+    gitpull = async(message) => {
+        clientInfo.message = message;
+        await message.channel.sendTyping()
+
+        // git pull can be run only by Han or Stark
+        if((message.author.id === "723377619420184668") || (message.author.id === "718845827413442692")) {
+            const shellRes = await shell("cd .. && git pull")
+            await message.reply(shellRes)
+        }
+        else {
+            await message.reply("You are not authorised to run this command")
         }
     }
 
