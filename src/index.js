@@ -1,4 +1,4 @@
-// TODO -> Interactions and events
+// TODO -> Interactions
 
 // Bot token from env
 require('dotenv').config();
@@ -89,6 +89,10 @@ client.on("messageDelete", async(message) => {
 
 client.on("messageUpdate", async(oldMessage, newMessage) => {
     await clientEvent.messageUpdate(oldMessage, newMessage)
+})
+
+client.on("messageReactionAdd", async(messageReaction, user) => {
+    await clientEvent.messageReactionAdd(messageReaction, user)
 })
 
 client.on("threadCreate", async(threadChannel) => {

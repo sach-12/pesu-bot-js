@@ -1,5 +1,5 @@
 // Commands anyone can use
-const { Permissions, Collection } = require('discord.js');
+const { Permissions, Collection, MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
 
@@ -10,8 +10,9 @@ class Utils {
             .set(this.ping, ["ping", "tp"])
             .set(this.support, ["support", "contribute"])
             .set(this.count, ["count", "c"])
-            // .set(this.poll, ["poll"])
-            // .set(this.pollshow, ["pollshow", "ps"])
+            .set(this.snipe, ["snipe"])
+            .set(this.editsnipe, ["editsnipe"])
+            .set(this.poll, ["poll"])
             // .set(this.help, ["help", "h"])
 
         this.deletedMessage = null;
@@ -197,6 +198,83 @@ class Utils {
             }
             else {
                 await message.channel.send("No edited message")
+            }
+        }
+    }
+
+    poll = async(message, args) => {
+        clientInfo.message = message;
+        await message.channel.sendTyping()
+
+        // Poll help embed variable
+        const pollHelpEmbed = new MessageEmbed({
+            title: "Start a poll",
+            color: "0x2A8A96",
+            timestamp: Date.now()
+        })
+            .addField("!poll", "Usage:\n!poll Question [Option1][Option2]...[Option9]", false)
+            .addField("\u200b", "To get the results of a poll, click the `Results` button on the poll (still under development)", false)
+        
+        if(args.length === 0) {
+            await message.reply({embeds: [pollHelpEmbed]})
+        }
+        else {
+            // Get the poll arguments split on `[` which contains the question and options
+            const pollArgs = message.content.substring(message.content.indexOf(args[0])).split("[")
+            // Clean out the brackets and leading/trailing whitespaces, if any
+            const pollList = []
+            pollArgs.forEach(word => {
+                const arg = word.replace("]", "").replace("[", "")
+                if(arg != ""){
+                    pollList.push(arg.trim())
+                }
+            })
+
+            // Edge cases
+            // When only the question is given
+            if(pollList.length === 1) {
+                await message.reply({content: "Not enough parameters", embeds: [pollHelpEmbed]})
+            }
+            // When only one option is provided
+            else if(pollList.length === 2) {
+                await message.reply({content: "You need more than one choice", embeds: [pollHelpEmbed]})
+            }
+            // When more than 9 options are provided
+            else if(pollList.length > 10) {
+                await message.reply({content: "Choice limit is nine", embeds: [pollHelpEmbed]})
+            }
+            else {
+                // Question is the first element in the array. Following elements are each options
+                const question = pollList.shift()
+                const reactionList = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
+                // The poll question embed
+                const pollEmbed = new MessageEmbed({
+                    title: question,
+                    color: "0x7289DA",
+                    timestamp: Date.now()
+                })
+                // Add field to each option of the poll
+                pollList.forEach(option => {
+                    pollEmbed.addField("\u200b", `${reactionList[pollList.indexOf(option)]} ${option}`, false)
+                })
+                // Set the footer. This is important for the messageReactionAdd event in events.js
+                pollEmbed.setFooter(`Poll by ${message.author.tag}`)
+
+                // Poll statistics button
+                const button = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId('ps')
+                            .setLabel("Stats (Button still under development)")
+                            .setStyle("PRIMARY")
+                    );
+                
+                const pollMessage = await message.channel.send({embeds: [pollEmbed], components: [button]})
+
+                // Make the bot react for the length of options
+                pollList.forEach(async (option) => {
+                    await pollMessage.react(reactionList.shift())
+                })
             }
         }
     }
