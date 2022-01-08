@@ -20,7 +20,9 @@
         "unlock",
 
         "echo",
-        "purge"
+        "purge",
+        "bash",
+        "gitpull"
     ],
 
     "admin": "742800061280550923",
