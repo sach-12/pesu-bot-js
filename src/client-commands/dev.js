@@ -2,6 +2,7 @@
 const { Collection } = require('discord.js');
 const config = require('../config.json');
 const clientInfo = require("./clientHelper");
+const { shell } = require('./misc')
 
 class DevCommands {
 
@@ -9,10 +10,11 @@ class DevCommands {
         this.commands = new Collection()
             .set(this.echo, ["echo", "e"])
             .set(this.purge, ["purge", "p"])
-            // .set(this.gitpull, ["gitpull", "pull"])
+            .set(this.gitpull, ["gitpull", "pull"])
             // .set(this.restart, ["restart"])
-            // .set(this.bash, ["bash"])
+            .set(this.bash, ["bash"])
     }
+
     echo = async (message) => {
         clientInfo.message = message
         //syntax - `+e <#channelname> whatever to be echoed
@@ -75,7 +77,63 @@ class DevCommands {
         }
     }
 
+    gitpull = async(message) => {
+        clientInfo.message = message;
+        await message.channel.sendTyping()
 
+        // git pull can be run only by Han or Stark
+        if((message.author.id === "723377619420184668") || (message.author.id === "718845827413442692")) {
+            const shellRes = await shell("cd .. && git pull")
+            await message.reply(shellRes)
+        }
+        else {
+            await message.reply("You are not authorised to run this command")
+        }
+    }
+
+    bash = async(message) => {
+        clientInfo.message = message;
+        await message.channel.sendTyping()
+
+        // bash can be run only by Han or Stark
+        if((message.author.id === "723377619420184668") || (message.author.id === "718845827413442692")) {
+            await message.reply("enter the command");
+            // const args = message.content.slice(1).trim().split(/ +/);
+            const filter = m => m.author.id === message.author.id // Filter for message collector
+            const collector = message.channel.createMessageCollector({filter, max: 1, time: 60000}); //Timeout in ms
+            let args;
+            collector.on('collect', async(msg) => {
+                message = msg
+                try{
+                    let removeMD = message.content.replace(/```/g, "")
+                    args = removeMD.trim().split(/ +/);
+                } catch(err){
+                    args = message.content.trim().split(/ +/);
+                }
+
+                if (args.includes("sudo") || args.includes("su") || message.content.includes(">")) {
+                    await message.reply("This might overwrite the file contents, not gonna do")
+                    return
+                }
+                
+                const shellRes = await shell(args.join(" "))
+                if (shellRes) {
+                    await message.reply(shellRes)
+                } else {
+                    await message.reply("Command executed successfully with no output")
+                }
+            });
+            collector.on('end', async function(collected) {
+                // Timeout message
+                if(collected.size === 0){
+                    await message.reply("Command timed out")
+                }    
+            });
+        }
+        else {
+            await message.reply("You are not authorised to run this command")
+        }
+    }
 }
 
 const devTools = new DevCommands()

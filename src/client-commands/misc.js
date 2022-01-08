@@ -60,6 +60,21 @@ class Misc {
 
     }
 
+    // Function to run shell scripts in a promisified way
+    shell = (cmd) => {   
+        const { exec } = require('child_process')
+        return new Promise((resolve, reject) => {
+            cmd = cmd.replace(/\n/g, " && ")
+            exec(
+                cmd,
+                (error, stdout, stderr) => {
+                    if(error) throw error
+                    resolve(stdout? stdout : stderr)
+                })  
+        })
+
+    }
+
     
 }
 const misc = new Misc()
