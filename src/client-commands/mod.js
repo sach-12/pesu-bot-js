@@ -17,7 +17,6 @@ class Moderation {
 
     kick = async(message, args) => {
         clientInfo.message=message;
-        await message.channel.sendTyping()
 
         // Kick permission only for the admin and moderators
         if(message.member.roles.cache.some(
@@ -101,7 +100,6 @@ class Moderation {
 
     mute = async(message, args) => {
         clientInfo.message=message;
-        await message.channel.sendTyping()
 
         // Find target member to be muted
         // Remove mention caused by reply if it exists
@@ -256,7 +254,6 @@ class Moderation {
 
     unmute = async(message) => {
         clientInfo.message=message;
-        await message.channel.sendTyping()
 
         // Find target member to be muted
         // Remove mention caused by reply if it exists
@@ -316,7 +313,6 @@ class Moderation {
 
     lock = async(message, args) => {
         clientInfo.message=message;
-        await message.channel.sendTyping()
 
         // Only admin/mods can use lock command
         if(message.member.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {
@@ -385,7 +381,6 @@ class Moderation {
 
     unlock = async(message) => {
         clientInfo.message=message;
-        await message.channel.sendTyping()
 
         // Only admin/mods can use lock command
         if(message.member.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {

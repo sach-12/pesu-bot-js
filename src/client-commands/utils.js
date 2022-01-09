@@ -36,7 +36,6 @@ class Utils {
 
     count = async (message) => {
         clientInfo.message = message
-        await message.channel.sendTyping();
 
         // Get role names separated by "&"
         let roleList = []
@@ -113,7 +112,6 @@ class Utils {
 
     snipe = async (message) => {
         clientInfo.message = message
-        await message.channel.sendTyping()
 
         // If no message was stored in snipe
         if(this.deletedMessage === null){
@@ -204,7 +202,6 @@ class Utils {
 
     poll = async(message, args) => {
         clientInfo.message = message;
-        await message.channel.sendTyping()
 
         // Poll help embed variable
         const pollHelpEmbed = new MessageEmbed({

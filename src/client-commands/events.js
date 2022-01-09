@@ -8,6 +8,7 @@ class Events {
 
     constructor() {
         this.events = [
+            "ready", // Client on-ready actions
             "guildMemberAdd", // Send to bot logs and add just joined role
             "guildMemberRemove", // Send to bot logs and deverify if needed
             "guildMemberUpdate", // Birthday alert
@@ -16,6 +17,15 @@ class Events {
             "messageReactionAdd", // Polls
             "threadCreate" // To join threads automatically
         ]
+    }
+
+    ready = async(client) => {
+        const botLogs = client.channels.cache.get(config.logs)
+        await botLogs.send("Bot is online")
+        client.user.setActivity({
+            name: "with the brand new JS bot",
+            type: "PLAYING"
+        })
     }
 
     guildMemberAdd = async(member) => {
