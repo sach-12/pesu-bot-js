@@ -34,7 +34,7 @@ class Misc {
     // Returns false if no NQN message was regenerated
     nqnTest = async(message) => {
         let ret = false;
-        const config = require("../config.json")
+        const config = require("../../config.json")
 
         // Get NQN Audit Logs channel
         const nqnLogs = message.guild.channels.cache.get(config.nqnlogs)

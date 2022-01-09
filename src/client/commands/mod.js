@@ -1,8 +1,8 @@
 // Moderation functions
 const { MessageEmbed, DiscordAPIError, Permissions, Collection } = require('discord.js');
-const config = require('../config.json');
-const clientInfo = require("./clientHelper");
-const { sleep } = require('./misc')
+const config = require('../../config.json');
+const clientInfo = require("../helpers/clientHelper");
+const { sleep } = require('../helpers/misc')
 
 class Moderation {
     constructor() {
