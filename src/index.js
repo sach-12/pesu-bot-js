@@ -1,5 +1,4 @@
-// TODO -> Interactions and events
-
+// Pending -> Interactions, help command, restart command, mongodb setup in digital ocean
 // Bot token from env
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
@@ -38,15 +37,17 @@ const moderation = require("./client-commands/mod");
 const clientEvent = require("./client-commands/events")
 
 
-client.once('ready', () => {
+client.once('ready', async() => {
     clientInfo.init(client);
-    console.log('Ready!');
+    await clientEvent.ready(client)
 });
 
 
 client.on('messageCreate', async(message) => {
 
     if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+    await message.channel.sendTyping()
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
@@ -89,6 +90,10 @@ client.on("messageDelete", async(message) => {
 
 client.on("messageUpdate", async(oldMessage, newMessage) => {
     await clientEvent.messageUpdate(oldMessage, newMessage)
+})
+
+client.on("messageReactionAdd", async(messageReaction, user) => {
+    await clientEvent.messageReactionAdd(messageReaction, user)
 })
 
 client.on("threadCreate", async(threadChannel) => {

@@ -8,14 +8,24 @@ class Events {
 
     constructor() {
         this.events = [
+            "ready", // Client on-ready actions
             "guildMemberAdd", // Send to bot logs and add just joined role
             "guildMemberRemove", // Send to bot logs and deverify if needed
             "guildMemberUpdate", // Birthday alert
             "messageDelete", // Snipe and ghost ping check
             "messageUpdate", // Edit-snipe
-            // "messageReactionAdd", // Polls
+            "messageReactionAdd", // Polls
             "threadCreate" // To join threads automatically
         ]
+    }
+
+    ready = async(client) => {
+        const botLogs = client.channels.cache.get(config.logs)
+        await botLogs.send("Bot is online")
+        client.user.setActivity({
+            name: "with the brand new JS bot",
+            type: "PLAYING"
+        })
     }
 
     guildMemberAdd = async(member) => {
@@ -147,6 +157,34 @@ class Events {
         // which triggered this event
         if(utils.editedMessage != null && utils.editedMessage.id === oldMessage.id) {
             utils.editedMessage = null
+        }
+    }
+
+    messageReactionAdd = async(messageReaction, user) => {
+        // This event is responsible for removing duplicate votes in a poll
+        // Check the message on which a reaction was created
+        if((messageReaction.message.author.id === "749484661717204992") && (!user.bot)) {
+            try {
+                const footerText = messageReaction.message.embeds[0].footer.text.toLowerCase()
+                if(footerText.includes("poll by")) {
+                    // allReactions is the collections of all the current reactions on the poll
+                    const allReactions = messageReaction.message.reactions.cache
+                    allReactions.forEach(async (eachReaction) => {
+                        // The following if statement is executed against an incoming reaction with every other reaction of the poll
+                        if(eachReaction != messageReaction) {
+                            // Get the list of users of the old reactions
+                            const userList = eachReaction.users.cache
+                            // If the user has already reacted, remove his/her eariler vote
+                            if(userList.has(user.id)) {
+                                await eachReaction.users.remove(user)
+                            }
+                        }
+                    })
+                }
+            }
+            catch (error) {
+                // Do nothing
+            }
         }
     }
 

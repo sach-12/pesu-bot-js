@@ -17,7 +17,6 @@ class Verification {
 
     verify = async (message, args) => {
         clientInfo.message = message;
-        await message.channel.sendTyping();
 
         // Embed objects
         let successEmbed = new MessageEmbed({
@@ -234,7 +233,6 @@ class Verification {
 
     info = async (message, args) => {
         clientInfo.message = message;
-        await message.channel.sendTyping();
 
         // Check appropriate roles
         if (message.member.roles.cache.some((role => [config.admin, config.mod, config.botDev].includes(role.id)))) {
@@ -343,7 +341,6 @@ class Verification {
 
     deverify = async(message, args) => {
         clientInfo.message = message;
-        await message.channel.sendTyping();
 
         // Check appropriate roles
         if (message.member.roles.cache.some((role => [config.admin, config.mod, config.botDev].includes(role.id)))) {
@@ -412,7 +409,6 @@ class Verification {
 
     file = async(message) => {
         clientInfo.message = message;
-        await message.channel.sendTyping();
         
         // Check appropriate roles
         if (message.member.roles.cache.some((role => [config.admin, config.botDev].includes(role.id)))) {
