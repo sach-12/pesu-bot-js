@@ -1,7 +1,7 @@
 // This file handles event triggers
-const config = require('../config.json')
-const {sleep, nqnTest, deverifyFunc} = require("./misc")
-const utils = require("./utils")
+const config = require('../../config.json')
+const {sleep, nqnTest, deverifyFunc} = require("../helpers/misc")
+const utils = require("../commands/utils")
 const {MessageEmbed} = require('discord.js')
 
 class Events {

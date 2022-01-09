@@ -29,12 +29,12 @@ const client = new Client({
 });
 
 // Commands from various files
-const clientInfo = require("./client-commands/clientHelper");
-const util = require("./client-commands/utils");
-const dev = require("./client-commands/dev");
-const verification = require("./client-commands/verification");
-const moderation = require("./client-commands/mod");
-const clientEvent = require("./client-commands/events")
+const clientInfo = require("./client/helpers/clientHelper");
+const util = require("./client/commands/utils");
+const dev = require("./client/commands/dev");
+const verification = require("./client/commands/verification");
+const moderation = require("./client/commands/mod");
+const clientEvent = require("./client/events/events")
 
 
 client.once('ready', async() => {

@@ -1,5 +1,5 @@
 //The main file for shared attributes like message, startime and client
-const config = require('../config.json');
+const config = require('../../config.json');
 
 class Commands {
     constructor() {

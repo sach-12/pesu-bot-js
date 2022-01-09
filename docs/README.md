@@ -35,14 +35,18 @@ Refer to the python code [here](https://github.com/sach-12/pesu-bot)
 ├── src
 │   ├── config.json
 │   ├── index.js 
-│   ├── client-commands
-│   │   ├── clientHelper.js
-│   │   ├── dev.js
-|   |   |── events.js
-│   │   ├── mod.js
-│   │   ├── verification.js
-│   │   ├── utils.js
-│   │   └── misc.js
+│   ├── client
+│   │   ├── commands
+│   │   │   ├── dev.js
+│   │   │   ├── mod.js
+│   │   │   ├── utils.js
+│   │   │   └── verification.js
+│   │   ├── events
+│   │   │   └── events.js
+│   │   ├── helpers
+│   │   │   ├── clientHelper.js
+│   │   │   ├── misc.js
+│   │   │   └── models.js
 │   ├── node_modules
 │   │   └── All modules are included in source code.
 ```
@@ -75,6 +79,7 @@ The meaning of each file are as follows:
  - **mod.js** & **dev.js** self explanatory
  - **misc.js** for helper functions
  - **events.js** for client event listeners
+ - **models.js** for defining schema for mongoose
 
 Further documentation can be found [here](https://discord.js.org/#/)
 

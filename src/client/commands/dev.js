@@ -1,8 +1,8 @@
 // Developmental commands and commands BotDev can use
 const { Collection, MessageEmbed } = require('discord.js');
-const config = require('../config.json');
-const clientInfo = require("./clientHelper");
-const { shell } = require('./misc')
+const config = require('../../config.json');
+const clientInfo = require("../helpers/clientHelper");
+const { shell } = require('../helpers/misc')
 
 class DevCommands {
 

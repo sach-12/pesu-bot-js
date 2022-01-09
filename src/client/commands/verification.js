@@ -1,8 +1,8 @@
 // Verification Related
 
-const config = require('../config.json');
-const clientInfo = require("./clientHelper");
-const {sleep} = require('./misc');
+const config = require('../../config.json');
+const clientInfo = require("../helpers/clientHelper");
+const {sleep} = require('../helpers/misc');
 const {MessageEmbed, DiscordAPIError, Collection} = require('discord.js')
 
 
@@ -65,7 +65,7 @@ class Verification {
         const usn = args[0].toUpperCase();
 
         // Get collection from batch year
-        const {batch_2018, batch_2019, batch_2020, batch_2021, verified} = require('./models');
+        const {batch_2018, batch_2019, batch_2020, batch_2021, verified} = require('../helpers/models');
         const year = usn.substring(6, 8);
         let dbc = null; // Collection object
         let sec = null; // This is done because PRN based verification use section for validation
@@ -269,7 +269,7 @@ class Verification {
 
                     // Connect to MongoDB
                     const mongoose = require('mongoose');
-                    const {batch_2018, batch_2019, batch_2020, batch_2021, verified} = require('./models');
+                    const {batch_2018, batch_2019, batch_2020, batch_2021, verified} = require('../helpers/models');
                     mongoose.connect('mongodb://localhost:27017/pesu',
                     {
                         useNewUrlParser: true,
@@ -375,7 +375,7 @@ class Verification {
                 }
                 else{
                     // Remove member details from verified collection
-                    const {deverifyFunc} = require("./misc")
+                    const {deverifyFunc} = require("../helpers/misc")
                     const ret = await deverifyFunc(member.id)
                     if(ret === true){
                         // Remove all roles of the member
@@ -420,7 +420,7 @@ class Verification {
 
             // Mongoose for user data
             const mongoose = require('mongoose')
-            const {verified} = require('./models')
+            const {verified} = require('../helpers/models')
             const fs = require('fs')
 
             mongoose.connect('mongodb://localhost:27017/pesu',
