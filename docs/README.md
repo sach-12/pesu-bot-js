@@ -47,6 +47,10 @@ Refer to the python code [here](https://github.com/sach-12/pesu-bot)
 │   │   │   ├── clientHelper.js
 │   │   │   ├── misc.js
 │   │   │   └── models.js
+│   │   ├── interactions
+│   │   │   ├── button.js
+│   │   │   ├── cmenu.js
+│   │   │   └── slash.js
 │   ├── node_modules
 │   │   └── All modules are included in source code.
 ```
@@ -80,6 +84,9 @@ The meaning of each file are as follows:
  - **misc.js** for helper functions
  - **events.js** for client event listeners
  - **models.js** for defining schema for mongoose
+ - **button.js** for handling all button interactions
+ - **cmenu.js** for handling all message context menu interactions
+ - **slash.js** for handling all slash command interactions
 
 Further documentation can be found [here](https://discord.js.org/#/)
 

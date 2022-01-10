@@ -255,7 +255,7 @@ class Utils {
                     pollEmbed.addField("\u200b", `${reactionList[pollList.indexOf(option)]} ${option}`, false)
                 })
                 // Set the footer. This is important for the messageReactionAdd event in events.js
-                pollEmbed.setFooter(`Poll by ${message.author.tag}`)
+                pollEmbed.setFooter({text: `Poll by ${message.author.tag}`})
 
                 // Poll statistics button
                 const button = new MessageActionRow()
