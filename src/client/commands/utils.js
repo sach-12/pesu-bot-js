@@ -160,14 +160,14 @@ class Utils {
             // Edit-snipes only if the command origin channel is the same as the edited message origin channel
             if(this.editedMessage.channel.id === message.channel.id){
                 // To check if the message still exists
-                const originnalMessage = await message.channel.messages.fetch(this.editedMessage)
+                const originnalMessage = message.channel.messages.cache.get(this.editedMessage.id)
 
                 // If the message exists, get the ID for replying to it
                 let repliedTo = null
 
                 // If the message does not exist, try replying to who he/she replied to instead
-                if(originnalMessage === null) {
-                    const reference = await this.editedMessage.reference
+                if(originnalMessage === undefined) {
+                    const reference = this.editedMessage.reference
                     if(reference != null) {
                         repliedTo = reference.messageId
                     }
@@ -181,8 +181,8 @@ class Utils {
                 let content = ""
                 // If the command response has nothing to reply to or if the original message does not exist, 
                 // add the message author tag to the response content
-                if(repliedTo === null || originnalMessage === null){
-                    content += `<@${this.editedMessage.author.id}> `
+                if(repliedTo === null || originnalMessage === undefined){
+                    content += `<@${this.editedMessage.author.id}>: `
                 }
                 content += this.editedMessage.content
 

@@ -90,6 +90,7 @@ class Events {
             // Send embed if there's any ghost ping to mod logs
             if(ghostPingEmbed.fields.length > 0) {
                 const modLogs = message.guild.channels.cache.get(config.modlogs)
+                ghostPingEmbed.addField("Message content", message.content, false)
                 await modLogs.send({embeds: [ghostPingEmbed]})
             }
 
@@ -106,10 +107,14 @@ class Events {
     }
 
     messageUpdate = async(oldMessage, newMessage) => {
+        if(oldMessage.author.bot === true) return;
 
         // To check ghost ping
         const allMentions = oldMessage.mentions
         const newMentions = newMessage.mentions
+        if(oldMessage.type === "REPLY") {
+            allMentions.members.delete(allMentions.repliedUser.id);
+        }
         if(allMentions != newMentions){
             const ghostPingEmbed = new MessageEmbed({
                 title: "Ghost Ping Alert (Edited Message)",
