@@ -12,6 +12,8 @@
         "count",
         "snipe",
         "editsnipe",
+        "poll",
+        "help",
 
         "kick",
         "mute",

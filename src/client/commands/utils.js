@@ -13,7 +13,7 @@ class Utils {
             .set(this.snipe, ["snipe"])
             .set(this.editsnipe, ["editsnipe"])
             .set(this.poll, ["poll"])
-            // .set(this.help, ["help", "h"])
+            .set(this.help, ["help", "h"])
 
         this.deletedMessage = null;
         this.editedMessage = null;
@@ -274,6 +274,15 @@ class Utils {
                 })
             }
         }
+    }
+
+    help = async(message) => {
+        clientInfo.message = message;
+
+        let content = "Help command is still under development. But here are the list of all available commands\n```"
+        content += config.commands.join("\n")
+        content += "```"
+        await message.reply(content)
     }
 }
 const utils = new Utils()
