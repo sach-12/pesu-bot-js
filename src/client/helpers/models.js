@@ -1,8 +1,8 @@
 // File for mongoose models
 
-const mongoose = require('mongoose');
+const {Schema, model} = require('mongoose')
 
-const BatchSchema = new mongoose.Schema(
+const BatchSchema = new Schema(
     {
         PRN: { type: String, required: true},
         SRN: { type: String, required: true},
@@ -15,7 +15,7 @@ const BatchSchema = new mongoose.Schema(
     }
 )
 
-const VerifiedSchema = new mongoose.Schema(
+const VerifiedSchema = new Schema(
     {
         Username: { type: String, required: true},
         ID: { type: String, required: true},
@@ -23,14 +23,23 @@ const VerifiedSchema = new mongoose.Schema(
     }
 );
 
-let batch_2018 = mongoose.model('batch_2018', BatchSchema, 'batch_2018');
-let batch_2019 = mongoose.model('batch_2019', BatchSchema, 'batch_2019');
-let batch_2020 = mongoose.model('batch_2020', BatchSchema, 'batch_2020');
-let batch_2021 = mongoose.model('batch_2021', BatchSchema, 'batch_2021');
-let verified = mongoose.model('verified', VerifiedSchema, 'verified');
+const AnonBanSchema = new Schema(
+    {
+        ID: { type: String, required: true},
+        Reason: {type: String, required: true}
+    }
+);
+
+const batch_2018 = model('batch_2018', BatchSchema, 'batch_2018');
+const batch_2019 = model('batch_2019', BatchSchema, 'batch_2019');
+const batch_2020 = model('batch_2020', BatchSchema, 'batch_2020');
+const batch_2021 = model('batch_2021', BatchSchema, 'batch_2021');
+const verified = model('verified', VerifiedSchema, 'verified');
+const anonban = model('anonban', AnonBanSchema, 'anonban');
 
 module.exports.batch_2018 = batch_2018;
 module.exports.batch_2019 = batch_2019;
 module.exports.batch_2020 = batch_2020;
 module.exports.batch_2021 = batch_2021;
 module.exports.verified = verified;
+module.exports.anonban = anonban;

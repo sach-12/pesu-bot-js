@@ -1,4 +1,5 @@
 // Helper functions used in other files
+const cron = require('node-cron')
 
 class Misc {
     constructor() {
@@ -78,7 +79,7 @@ class Misc {
     // This function is used to register slash commands and context menu commands to discord
     // through the discord API. This function can be called in any other common function
     // and commands need to be registered only once
-    interactionsRegister = async() => {
+    applicationCommandRegister = async() => {
         const {REST} = require('@discordjs/rest')
         const {Routes} = require('discord-api-types/v9')
         const {SlashCommandBuilder, ContextMenuCommandBuilder} = require('@discordjs/builders')
@@ -142,7 +143,7 @@ class Misc {
         interList.push(bananoncontext)
 
         const userbananon = new SlashCommandBuilder()
-            .setName('banuseranon')
+            .setName('userbananon')
             .setDescription('Ban a user from using anon messaging feature')
             .addUserOption(option => 
                 option.setName('member')
@@ -177,6 +178,43 @@ class Misc {
             console.log(error)
         }
     }
+
+    // Function to add anon banned users to the database
+    // Returns true if operation was a success, false if the document already existed
+    anonbanHelper = async(mid, reason) => {
+        const {connect} = require('mongoose')
+        const {anonban} = require('./models')
+
+        connect('mongodb://localhost:27017/pesu',
+        {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+
+        const res = await anonban.findOne({ID: mid})
+        if(res != null) {
+            return false
+        }
+
+        else {
+            const banDoc = new anonban(
+            {
+                ID: mid,
+                Reason: reason
+            }
+            );
+            await banDoc.save((err, verified) => {
+                if(err) throw err;
+            })
+            return true
+        }
+    }
+
+    // A daily task to flush the anonCache data
+    dailyTask = cron.schedule('0 0 0 */1 * *', () => {
+        const slash = require('../interactions/slash')
+        slash.anonCache = {}
+    })
 }
 const misc = new Misc()
 

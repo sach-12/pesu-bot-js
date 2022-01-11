@@ -1,4 +1,4 @@
-// Pending -> Interactions, help command, restart command, mongodb setup in digital ocean
+// Pending -> help command, restart command, mongodb setup in digital ocean
 // Bot token from env
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
@@ -45,6 +45,7 @@ client.once('ready', async() => {
 });
 
 
+// Handling commands
 client.on('messageCreate', async(message) => {
 
     if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -74,6 +75,7 @@ client.on('messageCreate', async(message) => {
 });
 
 
+// Handling interactions
 client.on("interactionCreate", async(interaction) => {
     
     let interactionFunc = async() => {}
@@ -84,7 +86,6 @@ client.on("interactionCreate", async(interaction) => {
     // Slash commands
     else if(interaction.isCommand()) {
         interactionFunc = slashInteractions.interactions.findKey(inter => inter === interaction.commandName)
-        console.log(interactionFunc)
     }
     // Buttons on messages
     else if(interaction.isButton()) {
