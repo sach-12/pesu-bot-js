@@ -106,3 +106,7 @@ dist
 # Batch list and verified JSON files
 batch_list_*.json
 verified.json
+
+# nohup
+nohup.out
+
