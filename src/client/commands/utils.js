@@ -13,7 +13,7 @@ class Utils {
             .set(this.snipe, ["snipe"])
             .set(this.editsnipe, ["editsnipe"])
             .set(this.poll, ["poll"])
-            // .set(this.help, ["help", "h"])
+            .set(this.help, ["help", "h"])
 
         this.deletedMessage = null;
         this.editedMessage = null;
@@ -160,14 +160,14 @@ class Utils {
             // Edit-snipes only if the command origin channel is the same as the edited message origin channel
             if(this.editedMessage.channel.id === message.channel.id){
                 // To check if the message still exists
-                const originnalMessage = await message.channel.messages.fetch(this.editedMessage)
+                const originnalMessage = message.channel.messages.cache.get(this.editedMessage.id)
 
                 // If the message exists, get the ID for replying to it
                 let repliedTo = null
 
                 // If the message does not exist, try replying to who he/she replied to instead
-                if(originnalMessage === null) {
-                    const reference = await this.editedMessage.reference
+                if(originnalMessage === undefined) {
+                    const reference = this.editedMessage.reference
                     if(reference != null) {
                         repliedTo = reference.messageId
                     }
@@ -181,8 +181,8 @@ class Utils {
                 let content = ""
                 // If the command response has nothing to reply to or if the original message does not exist, 
                 // add the message author tag to the response content
-                if(repliedTo === null || originnalMessage === null){
-                    content += `<@${this.editedMessage.author.id}> `
+                if(repliedTo === null || originnalMessage === undefined){
+                    content += `<@${this.editedMessage.author.id}>: `
                 }
                 content += this.editedMessage.content
 
@@ -255,7 +255,7 @@ class Utils {
                     pollEmbed.addField("\u200b", `${reactionList[pollList.indexOf(option)]} ${option}`, false)
                 })
                 // Set the footer. This is important for the messageReactionAdd event in events.js
-                pollEmbed.setFooter(`Poll by ${message.author.tag}`)
+                pollEmbed.setFooter({text: `Poll by ${message.author.tag}`})
 
                 // Poll statistics button
                 const button = new MessageActionRow()
@@ -274,6 +274,15 @@ class Utils {
                 })
             }
         }
+    }
+
+    help = async(message) => {
+        clientInfo.message = message;
+
+        let content = "Help command is still under development. But here are the list of all available commands\n```"
+        content += config.commands.join("\n")
+        content += "```"
+        await message.reply(content)
     }
 }
 const utils = new Utils()

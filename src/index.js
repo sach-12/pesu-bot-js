@@ -1,4 +1,4 @@
-// Pending -> Interactions, help command, restart command, mongodb setup in digital ocean
+// Pending -> help command, restart command, mongodb setup in digital ocean
 // Bot token from env
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
@@ -34,8 +34,10 @@ const util = require("./client/commands/utils");
 const dev = require("./client/commands/dev");
 const verification = require("./client/commands/verification");
 const moderation = require("./client/commands/mod");
-const clientEvent = require("./client/events/events")
-
+const clientEvent = require("./client/events/events");
+const buttonInteractions = require("./client/interactions/button");
+const slashInteractions = require("./client/interactions/slash");
+const cmenuInteractions = require('./client/interactions/cmenu');
 
 client.once('ready', async() => {
     clientInfo.init(client);
@@ -43,6 +45,7 @@ client.once('ready', async() => {
 });
 
 
+// Handling commands
 client.on('messageCreate', async(message) => {
 
     if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -70,6 +73,30 @@ client.on('messageCreate', async(message) => {
     }
     await commandFunc(message, args)
 });
+
+
+// Handling interactions
+client.on("interactionCreate", async(interaction) => {
+    
+    let interactionFunc = async() => {}
+    // Context menu -> The options you get when you right click on a message and then go to "Apps"
+    if(interaction.isMessageContextMenu()) {
+        interactionFunc = cmenuInteractions.interactions.findKey(inter => inter === interaction.commandName)
+    }
+    // Slash commands
+    else if(interaction.isCommand()) {
+        interactionFunc = slashInteractions.interactions.findKey(inter => inter === interaction.commandName)
+    }
+    // Buttons on messages
+    else if(interaction.isButton()) {
+        interactionFunc = buttonInteractions.interactions.findKey(inter => inter === interaction.customId)
+    }
+    // Just in case, shouldn't ever happen though
+    else {
+        interactionFunc = async() => {await interaction.reply("Something's wrong. Try later")}
+    }
+    await interactionFunc(interaction);
+})
 
 // Other events
 client.on("guildMemberAdd", async(member) => {

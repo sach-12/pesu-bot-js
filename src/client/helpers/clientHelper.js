@@ -1,5 +1,6 @@
 //The main file for shared attributes like message, startime and client
 const config = require('../../config.json');
+const {dailyTask} = require('./misc')
 
 class Commands {
     constructor() {
@@ -11,6 +12,7 @@ class Commands {
         this.startTime = Math.floor(Date.now() / 1000);
         this.client = client;
         this.message = NaN;
+        dailyTask.start()
     }
 
     error = async (err) => {
