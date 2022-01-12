@@ -38,6 +38,7 @@ const clientEvent = require("./client/events/events");
 const buttonInteractions = require("./client/interactions/button");
 const slashInteractions = require("./client/interactions/slash");
 const cmenuInteractions = require('./client/interactions/cmenu');
+const selectMenuInteractions = require('./client/interactions/selectmenu');
 
 client.once('ready', async() => {
     clientInfo.init(client);
@@ -89,7 +90,11 @@ client.on("interactionCreate", async(interaction) => {
     }
     // Buttons on messages
     else if(interaction.isButton()) {
-        interactionFunc = buttonInteractions.interactions.findKey(inter => inter === interaction.customId)
+        interactionFunc = buttonInteractions.interactions.findKey(inter => inter.includes(interaction.customId))
+    }
+    // Select Menu
+    else if(interaction.isSelectMenu()) {
+        interactionFunc = selectMenuInteractions.interactions.findKey(inter => inter === interaction.customId)
     }
     // Just in case, shouldn't ever happen though
     else {
