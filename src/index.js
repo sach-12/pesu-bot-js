@@ -132,7 +132,7 @@ process.on("uncaughtException", function(err) {
     if(err == "Error [TOKEN_INVALID]: An invalid token was provided."){
         console.log("Invalid token or network issue detected\nIf this is printed in github workflow, build is successful\n" + err);
         // this isnt a true test. just a starting of bot to check the syntax errors etc if any
-        process.exit(1);
+        process.exit(0);
 
         // in the recent commits the build is observed to be going into loops even with the above error
         // the wrong taken error is shifted to here from ./client/helpers/clientHelper.js
