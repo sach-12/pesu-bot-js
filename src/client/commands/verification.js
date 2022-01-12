@@ -45,7 +45,10 @@ class Verification {
         if (message.member.roles.cache.some(
             (role) => [config.verified].includes(role.id)
         )) {
-            const msg2 = await message.reply("You're already verified. Are you trying to steal someone's identity, you naughty little...");
+            const msg2 = await message.reply({
+                content: "You're already verified. Are you trying to steal someone's identity, you naughty little...",
+                failIfNotExists: false
+            });
             purgeMessageList.push(msg2);
             await sleep(10);
             await message.channel.bulkDelete(purgeMessageList);
@@ -54,7 +57,10 @@ class Verification {
 
         // Check if arguments are present
         if (args.length == 0) {
-            const msg2 = await message.reply({embeds: [processEmbed]});
+            const msg2 = await message.reply({
+                embeds: [processEmbed],
+                failIfNotExists: false
+            });
             purgeMessageList.push(msg2);
             await sleep(30);
             await message.channel.bulkDelete(purgeMessageList);
@@ -88,7 +94,11 @@ class Verification {
             finder = {PRN: usn};
         }
         else {
-            const msg2 = await message.reply({content: "Check your SRN/PRN and try again", embeds: [processEmbed]});
+            const msg2 = await message.reply({
+                content: "Check your SRN/PRN and try again",
+                embeds: [processEmbed],
+                failIfNotExists: false
+            });
             purgeMessageList.push(msg2);
             await sleep(30);
             await message.channel.bulkDelete(purgeMessageList);
@@ -108,7 +118,11 @@ class Verification {
         // Get PESU academy details from SRN/PRN
         const batchRes = await dbc.findOne(finder);
         if(batchRes === null ){
-            const msg2 = await message.reply({content: "Given SRN/PRN not found. Try again", embeds: [processEmbed]});
+            const msg2 = await message.reply({
+                content: "Given SRN/PRN not found. Try again",
+                embeds: [processEmbed],
+                failIfNotExists: false
+            });
             return;
         }
 
@@ -117,9 +131,12 @@ class Verification {
         if(verRes != null) {
             const adminRole = message.guild.roles.cache.get(config.admin).name
             const botDevRole = message.guild.roles.cache.get(config.botDev).name
-            const msg2 = await message.reply(`You have already been verified.\n\
+            const msg2 = await message.reply({
+                content: `You have already been verified.\n\
             To avoid spamming, we allow only one account per user.\n\
-            If you think someone else has used your SRN, please ping \`${adminRole}\` or \`${botDevRole}\` without fail`);
+            If you think someone else has used your SRN, please ping \`${adminRole}\` or \`${botDevRole}\` without fail`,
+                failIfNotExists: false
+            });
             return;
         }
 
@@ -127,12 +144,18 @@ class Verification {
         var validate = ""; // User response. Will be filled in message collector later
         var check = ""; // Database response with which validation happens
         if(sec === true) {
-            var msg2 = await message.reply("Now enter your section to complete verification");
+            var msg2 = await message.reply({
+                content: "Now enter your section to complete verification",
+                failIfNotExists: false
+            });
             validate = "Section ";
             check = batchRes.Section;
         }
         else {
-            var msg2 = await message.reply("Now enter your PRN to complete verification");
+            var msg2 = await message.reply({
+                content: "Now enter your PRN to complete verification",
+                failIfNotExists: false
+            });
             check = batchRes.PRN;
         }
         purgeMessageList.push(msg2);
@@ -158,7 +181,10 @@ class Verification {
             // Timeout message
             if(collected.size === 0){
                 failEmbed.addField("Time-out", "You took too long to respond. Time limit is 1 minute. Try again")
-                const msg4 = await message.reply({embeds: [failEmbed]});
+                const msg4 = await message.reply({
+                    embeds: [failEmbed],
+                    failIfNotExists: false
+                });
                 purgeMessageList.push(msg4);
             }
             else {
@@ -172,7 +198,10 @@ class Verification {
                         .addField("Stream/Campus", batchRes.CandB, true)
                         .addField("Stream", batchRes.Branch, true)
                         .addField("Campus", batchRes.Campus, true)
-                    const msg4 = await message.reply({embeds: [successEmbed]});
+                    const msg4 = await message.reply({
+                        embeds: [successEmbed],
+                        failIfNotExists: false
+                    });
                     purgeMessageList.push(msg4);
 
                     // Get appropriate role based on branch and year of study
@@ -219,7 +248,10 @@ class Verification {
                 }
                 else {
                     failEmbed.addField("Validation failed", "Given PRN/Section does not match the record")
-                    const msg4 = await message.reply({embeds: [failEmbed]});
+                    const msg4 = await message.reply({
+                        embeds: [failEmbed],
+                        failIfNotExists: false
+                    });
                     purgeMessageList.push(msg4);
                 }
             }
@@ -237,7 +269,10 @@ class Verification {
         // Check appropriate roles
         if (message.member.roles.cache.some((role => [config.admin, config.mod, config.botDev].includes(role.id)))) {
             if (args.length == 0) {
-                await message.reply("Mention a user to get info about")
+                await message.reply({
+                    content: "Mention a user to get info about",
+                    failIfNotExists: false
+                })
             }
             else {
                 // Mentions check
@@ -256,14 +291,17 @@ class Verification {
                         return membMention.id === m.id
                     }
                     else if (isNaN(mem)) {
-                        return mem === m.nickname
+                        return mem === m.user.username
                     }
                     else {
                         return mem === m.id
                     }
                 })
-                if(member === null) {
-                    await message.reply("Mention a valid user (either @ them or type their name or put their user ID")
+                if(member === undefined) {
+                    await message.reply({
+                        content: "Mention a valid user (either @ them or type their username or put their user ID",
+                        failIfNotExists: false
+                    })
                 }
                 else{
 
@@ -279,7 +317,10 @@ class Verification {
                     // Get user data from verified collection
                     const verRes = await verified.findOne({ID: member.id});
                     if(verRes === null){
-                        await message.reply("This user is not verified yet")
+                        await message.reply({
+                            content: "This user is not verified yet",
+                            failIfNotExists: false
+                        })
                         return
                     }
 
@@ -301,40 +342,53 @@ class Verification {
 
                     // Get Batch Data for remaining data
                     const batchRes = await dbc.findOne({PRN: verRes.PRN})
-                    const details = {
-                        "Username": verRes.Username,
-                        "MemberID": verRes.ID,
-                        "PRN": batchRes.PRN,
-                        "SRN": batchRes.SRN,
-                        "Semester": batchRes.Semester,
-                        "Section": batchRes.Section,
-                        "Cycle": batchRes.Cycle,
-                        "Stream/Campus": batchRes.CandB,
-                        "Stream": batchRes.Branch,
-                        "Campus": batchRes.Campus
-                    }
 
-                    // Create Embed to send
-                    let sendEmbed = new MessageEmbed(
-                        {
-                            title: "User Info",
-                            timestamp: Date.now(),
-                            color: "0x48BF91"
+                    if(batchRes === null) {
+                        await message.reply({
+                            content: "Missing data!!!\n<@723377619420184668>",
+                            failIfNotExists: false
+                        })
+                    }
+                    else {
+                        const details = {
+                            "Username": verRes.Username,
+                            "MemberID": verRes.ID,
+                            "PRN": batchRes.PRN,
+                            "SRN": batchRes.SRN,
+                            "Semester": batchRes.Semester,
+                            "Section": batchRes.Section,
+                            "Cycle": batchRes.Cycle,
+                            "Stream/Campus": batchRes.CandB,
+                            "Stream": batchRes.Branch,
+                            "Campus": batchRes.Campus
                         }
-                    )
 
-                    // Add each details field in the embed
-                    for (const key in details) {
-                        sendEmbed.addField(key, details[key], true)
+                        // Create Embed to send
+                        let sendEmbed = new MessageEmbed(
+                            {
+                                title: "User Info",
+                                timestamp: Date.now(),
+                                color: "0x48BF91"
+                            }
+                        )
+
+                        // Add each details field in the embed
+                        for (const key in details) {
+                            sendEmbed.addField(key, details[key], true)
+                        }
+                        await message.reply({
+                            embeds: [sendEmbed],
+                            failIfNotExists: false
+                        })
                     }
-                    await message.reply({
-                        embeds: [sendEmbed]
-                    })
                 }
             }
         }
         else {
-            await message.reply("You are not authorised to run this command")
+            await message.reply({
+                content: "You are not authorised to run this command",
+                failIfNotExists: false
+            })
         }
     }
 
@@ -345,7 +399,10 @@ class Verification {
         // Check appropriate roles
         if (message.member.roles.cache.some((role => [config.admin, config.mod, config.botDev].includes(role.id)))) {
             if (args.length == 0) {
-                await message.reply("Mention a user to get info about")
+                await message.reply({
+                    content: "Mention a user to get info about",
+                    failIfNotExists: false
+                })
             }
             else {
                 // Mentions check
@@ -364,14 +421,17 @@ class Verification {
                         return membMention.id === m.id
                     }
                     else if (isNaN(mem)) {
-                        return mem === m.nickname
+                        return mem === m.user.username
                     }
                     else {
                         return mem === m.id
                     }
                 })
                 if(member === null) {
-                    await message.reply("Mention a valid user (either @ them or type their name or put their user ID")
+                    await message.reply({
+                        content: "Mention a valid user (either @ them or type their username or put their user ID",
+                        failIfNotExists: false
+                    })
                 }
                 else{
                     // Remove member details from verified collection
@@ -393,16 +453,25 @@ class Verification {
                                 throw error
                             }
                         }
-                        await message.reply("De-verified <@"+member.id+">")
+                        await message.reply({
+                            content: "De-verified <@"+member.id+">",
+                            failIfNotExists: false
+                        })
                     }
                     else{
-                        await message.reply("This user was not verified in the first place")
+                        await message.reply({
+                            content: "This user was not verified in the first place",
+                            failIfNotExists: false
+                        })
                     }
                 }
             }
         }
         else {
-            await message.reply("You are not authorised to run this command")
+            await message.reply({
+                content: "You are not authorised to run this command",
+                failIfNotExists: false
+            })
         }
     }
 
@@ -412,7 +481,10 @@ class Verification {
         
         // Check appropriate roles
         if (message.member.roles.cache.some((role => [config.admin, config.botDev].includes(role.id)))) {
-            await message.reply("You have clearance")
+            await message.reply({
+                content: "You have clearance",
+                failIfNotExists: false
+            })
 
             // Get bot-test channel to send the file to
             const botTest = message.guild.channels.cache.get("749473757843947671")
@@ -438,7 +510,10 @@ class Verification {
 
         }
         else {
-            await message.reply("You are not authorised to run this command")
+            await message.reply({
+                content: "You are not authorised to run this command",
+                failIfNotExists: false
+            })
         }
     }
 

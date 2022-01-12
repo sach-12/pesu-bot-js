@@ -23,7 +23,10 @@ class Commands {
                 await BotLogs.send({
                     content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">"
                 });
-                await this.message.reply("Error occurred " + err);
+                await this.message.reply({
+                    content: "Error occurred " + err,
+                    failIfNotExists: false
+                });
             }
         } else {
             console.log("Critical Failure" + err);
