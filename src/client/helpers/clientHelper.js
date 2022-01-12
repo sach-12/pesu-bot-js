@@ -26,8 +26,9 @@ class Commands {
                 await this.message.reply("Error occurred " + err);
             }
         } else {
-            console.log("Invalid token or network issue detected\nIf this is printed in github workflow, build is successful\n" + err);
-            // this isnt a true test. just a starting of bot to check the syntax errors etc if any
+            console.log("Critical Failure" + err);
+            //if this occurs, it means that the bot is not initialized properly
+            //or the bot is kicked from the server of the message
         }
     }
 };
