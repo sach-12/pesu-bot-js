@@ -1,5 +1,5 @@
 // Commands anyone can use
-const { Permissions, Collection, MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { Permissions, Collection, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const config = require('../../config.json');
 const clientInfo = require("../helpers/clientHelper");
 
@@ -21,17 +21,26 @@ class Utils {
 
     uptime = async (message) => {
         clientInfo.message = message;
-        await message.reply("Bot was started <t:" + clientInfo.startTime + ":R>\ni.e., on <t:" + clientInfo.startTime + ":f>");
+        await message.reply({
+            content: "Bot was started <t:" + clientInfo.startTime + ":R>\ni.e., on <t:" + clientInfo.startTime + ":f>",
+            failIfNotExists: false
+        });
     }
 
     ping = async (message) => {
         clientInfo.message=message
-        await message.channel.send(`Pong!!!\nPing =\`${clientInfo.client.ws.ping} ms\``);
+        await message.reply({
+            content: `Pong!!!\nPing =\`${clientInfo.client.ws.ping} ms\``,
+            failIfNotExists: false
+        });
     }
 
     support = async (message) => {
         clientInfo.message = message
-        await message.reply("You can contribute to the bot here\nhttps://github.com/sach-12/pesu-bot-js")
+        await message.reply({
+            content: "You can contribute to the bot here\nhttps://github.com/sach-12/pesu-bot-js",
+            failIfNotExists: false
+        })
     }
 
     count = async (message) => {
@@ -82,7 +91,10 @@ class Utils {
             Total number of verified people: \`${verified}\`\n\
             Number of people that can see this channel: \`${hooman}\`\n\
             Number of bots that can see this channel: \`${bots}\``
-            await message.reply(stats)
+            await message.reply({
+                content: stats,
+                failIfNotExists: false
+            })
         }
         else{
             // Requested roles
@@ -106,7 +118,10 @@ class Utils {
                     num += 1
                 }
             })
-            await message.reply(`${num} people has/have ${requested}`)
+            await message.reply({
+                content: `${num} people has/have ${requested}`,
+                failIfNotExists: false
+            })
         }
     }
 
@@ -213,7 +228,10 @@ class Utils {
             .addField("\u200b", "To get the results of a poll, click the `Results` button on the poll (still under development)", false)
         
         if(args.length === 0) {
-            await message.reply({embeds: [pollHelpEmbed]})
+            await message.reply({
+                embeds: [pollHelpEmbed],
+                failIfNotExists: false
+            })
         }
         else {
             // Get the poll arguments split on `[` which contains the question and options
@@ -230,15 +248,27 @@ class Utils {
             // Edge cases
             // When only the question is given
             if(pollList.length === 1) {
-                await message.reply({content: "Not enough parameters", embeds: [pollHelpEmbed]})
+                await message.reply({
+                    content: "Not enough parameters",
+                    embeds: [pollHelpEmbed],
+                    failIfNotExists: false
+                })
             }
             // When only one option is provided
             else if(pollList.length === 2) {
-                await message.reply({content: "You need more than one choice", embeds: [pollHelpEmbed]})
+                await message.reply({
+                    content: "You need more than one choice",
+                    embeds: [pollHelpEmbed],
+                    failIfNotExists: false
+                })
             }
             // When more than 9 options are provided
             else if(pollList.length > 10) {
-                await message.reply({content: "Choice limit is nine", embeds: [pollHelpEmbed]})
+                await message.reply({
+                    content: "Choice limit is nine",
+                    embeds: [pollHelpEmbed],
+                    failIfNotExists: false
+                })
             }
             else {
                 // Question is the first element in the array. Following elements are each options
@@ -282,7 +312,10 @@ class Utils {
         let content = "Help command is still under development. But here are the list of all available commands\n```"
         content += config.commands.join("\n")
         content += "```"
-        await message.reply(content)
+        await message.reply({
+            content: content,
+            failIfNotExists: false
+        })
     }
 }
 const utils = new Utils()

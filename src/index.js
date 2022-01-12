@@ -1,4 +1,4 @@
-// Pending -> help command, restart command, mongodb setup in digital ocean
+// Pending -> restart command
 // Bot token from env
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;

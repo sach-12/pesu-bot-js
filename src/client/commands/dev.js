@@ -51,15 +51,26 @@ class DevCommands {
                     await target.send({content: content, files: fileUrls})
                 }
                 else {
-                    await message.reply({content: "What to echo?", embeds: [echoHelpEmbed]})
+                    await message.reply({
+                        content: "What to echo?",
+                        embeds: [echoHelpEmbed],
+                        failIfNotExists: false
+                    })
                 }
             }
             else {
-                await message.reply({content: "Echo to what channel?", embeds: [echoHelpEmbed]})
+                await message.reply({
+                    content: "Echo to what channel?",
+                    embeds: [echoHelpEmbed],
+                    failIfNotExists: false
+                })
             }
         }
         else {
-            await message.reply("Not to you lol");
+            await message.reply({
+                content: "Not to you lol",
+                failIfNotExists: false
+            });
         }
     }
 
@@ -71,17 +82,25 @@ class DevCommands {
             (role) => [config.admin, config.mod, config.botDev].includes(role.id)
         )) {
             if (!args[0]) {
-                return await message.reply(
-                    "Please enter the number of messages to be purged"
-                ); //If I don't put return here, it will send the below messages also
+                await message.reply({
+                    content: "Please enter the number of messages to be purged",
+                    failIfNotExists: false
+                });
+                return  //If I don't put return here, it will send the below messages also
             }
             if (args[0] > 100) {
-                return await message.reply("You cannot delete more than 100 messages");
+                await message.reply({
+                    content: "You cannot delete more than 100 messages",
+                    failIfNotExists: false
+                });
+                return
             }
             if (args[0] < 1 || isNaN(args[0])) {
-                return await message.reply(
-                    "Enter a valid number in the range of 0 to 100"
-                );
+                await message.reply({
+                    content: "Enter a valid number in the range of 0 to 100",
+                    failIfNotExists: false
+                });
+                return
             }
             let amount = parseInt(args[0]);
             await message.delete();
@@ -98,7 +117,10 @@ class DevCommands {
         // git pull can be run only by Han or Stark
         if((message.author.id === "723377619420184668") || (message.author.id === "718845827413442692")) {
             const shellRes = await shell("cd .. && git pull")
-            await message.reply(shellRes)
+            await message.reply({
+                content: shellRes,
+                failIfNotExists: false
+            })
         }
         else {
             await message.reply("You are not authorised to run this command")
@@ -110,7 +132,10 @@ class DevCommands {
 
         // bash can be run only by Han or Stark
         if((message.author.id === "723377619420184668") || (message.author.id === "718845827413442692")) {
-            await message.reply("Enter the command");
+            await message.reply({
+                content: "Enter the command",
+                failIfNotExists: false
+            });
             const filter = m => m.author.id === message.author.id // Filter for message collector
             const collector = message.channel.createMessageCollector({filter, max: 1, time: 60000}); //Timeout in ms
             let args;
@@ -126,27 +151,42 @@ class DevCommands {
 
                 // Dis-allow system changes
                 if (args.includes("sudo") || args.includes("su") || message.content.includes(">")) {
-                    await message.reply("This might overwrite the file contents, not gonna do")
+                    await message.reply({
+                        content: "This might overwrite the file contents, not gonna do",
+                        failIfNotExists: false
+                    })
                     return
                 }
                 
                 // Run the shell script
                 const shellRes = await shell(args.join(" "))
                 if (shellRes) {
-                    await message.reply(shellRes)
+                    await message.reply({
+                        content: shellRes,
+                        failIfNotExists: false
+                    })
                 } else {
-                    await message.reply("Command executed successfully with no output")
+                    await message.reply({
+                        content: "Command executed successfully with no output",
+                        failIfNotExists: false
+                    })
                 }
             });
             collector.on('end', async function(collected) {
                 // Timeout message
                 if(collected.size === 0){
-                    await message.reply("Command timed out")
+                    await message.reply({
+                        content: "Command timed out",
+                        failIfNotExists: false
+                    })
                 }    
             });
         }
         else {
-            await message.reply("You are not authorised to run this command")
+            await message.reply({
+                content: "You are not authorised to run this command",
+                failIfNotExists: false
+            })
         }
     }
 }

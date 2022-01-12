@@ -45,13 +45,19 @@ class Moderation {
             if(target){
                 // To avoid kicing bots
                 if(target.user.bot){
-                    await message.reply("You dare kick one of my brothers you little twat")
+                    await message.reply({
+                        content: "You dare kick one of my brothers you little twat",
+                        failIfNotExists: false
+                    })
                     return
                 }
 
                 // To avoid kicking admin/mods
                 if(target.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))){
-                    await message.reply("Gomma you can't kick admin/mod")
+                    await message.reply({
+                        content: "Gomma you can't kick admin/mod",
+                        failIfNotExists: false
+                    })
                     return
                 }
 
@@ -90,11 +96,18 @@ class Moderation {
                 await target.kick(reason);
             }
             else{
-                await message.reply({content: "Please mention soemone to kick", embeds: [kickHelpEmbed]});
+                await message.reply({
+                    content: "Please mention soemone to kick",
+                    embeds: [kickHelpEmbed],
+                    failIfNotExists: false
+                });
             }
         }
         else{
-            await message.reply("Noob you can't do that");
+            await message.reply({
+                content: "Noob you can't do that",
+                failIfNotExists: false
+            });
         }
     }
 
@@ -145,30 +158,50 @@ class Moderation {
                     }
                     else {
                         muteHelpEmbed.addField("Accepted Time Format", "Should end with `d/h/m/s`")
-                        await message.reply({content: "Mention the proper amount of time to be muted", embeds: [muteHelpEmbed]})
+                        await message.reply({
+                            content: "Mention the proper amount of time to be muted",
+                            embeds: [muteHelpEmbed],
+                            failIfNotExists: false
+                        })
                         return
                     }
 
                     // Handling all edge cases in the following if-else clause
                     // If mute limit is over the border
                     if((seconds <= 0) || (seconds > 1209600)) {
-                        await message.reply({content: "Mute time limit is 14 days only", embeds: [muteHelpEmbed]})
+                        await message.reply({
+                            content: "Mute time limit is 14 days only",
+                            embeds: [muteHelpEmbed],
+                            failIfNotExists: false
+                        })
                     }
                     // If self-muting, minimum limit is an hour
                     else if((mod.id === "749484661717204992") && (seconds < 3600)) {
-                        await message.reply("Self-mute is only for 1 hour or more")
+                        await message.reply({
+                            content: "Self-mute is only for 1 hour or more",
+                            failIfNotExists: false
+                        })
                     }
                     // If the user is already muted
                     else if(message.member.roles.cache.has(config.muted)) {
-                        await message.reply("Brother, leave the already muted poor soul alone")
+                        await message.reply({
+                            content: "Brother, leave the already muted poor soul alone",
+                            failIfNotExists: false
+                        })
                     }
                     // If you're trying to mute the admin or a mod
                     else if(target.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {
-                        await message.reply("Leyy, he's admin/mod. Can't mute them")
+                        await message.reply({
+                            content: "Leyy, he's admin/mod. Can't mute them",
+                            failIfNotExists: false
+                        })
                     }
                     // If you're trying to mute a bot
                     else if(target.user.bot){
-                        await message.reply("You dare mute of of my kind nin amn")
+                        await message.reply({
+                            content: "You dare mute of of my kind nin amn",
+                            failIfNotExists: false
+                        })
                     }
 
                     // If none of the above conditions are satisfied, it is safe to mute
@@ -189,7 +222,10 @@ class Moderation {
                             timestamp: Date.now()
                         })
                             .addField("Muted User", `<@${target.id}> was muted`);
-                        await message.reply({embeds: [muteEmbed]})
+                        await message.reply({
+                            embeds: [muteEmbed],
+                            failIfNotExists: false
+                        })
 
                         // Mute logs to mod-logs
                         const modLogs = message.guild.channels.cache.get(config.modlogs)
@@ -239,16 +275,27 @@ class Moderation {
                     }
                 }
                 else {
-                    await message.reply({content: "Mention the time to be muted for", embeds: [muteHelpEmbed]})
+                    await message.reply({
+                        content: "Mention the time to be muted for",
+                        embeds: [muteHelpEmbed],
+                        failIfNotExists: false
+                    })
                 }
             }
             else {
-                await message.reply("You are not authorised to do that")
+                await message.reply({
+                    content: "You are not authorised to do that",
+                    failIfNotExists: false
+                })
             }
         }
 
         else {
-            await message.reply({content: "Mention someone (or yourself) to mute", embeds: [muteHelpEmbed]})
+            await message.reply({
+                content: "Mention someone (or yourself) to mute",
+                embeds: [muteHelpEmbed],
+                failIfNotExists: false
+            })
         }
     }
 
@@ -275,7 +322,10 @@ class Moderation {
             if(target) {
                 // If the user was never muted/already unmuted
                 if(!target.roles.cache.has(config.muted)) {
-                    await message.reply("Why you trynna unmute someone who ain't muted?")
+                    await message.reply({
+                        content: "Why you trynna unmute someone who ain't muted?",
+                        failIfNotExists: false
+                    })
                 }
                 else {
                     // Response embed
@@ -285,7 +335,10 @@ class Moderation {
                         timestamp: Date.now()
                     })
                         .addField("Unmuted user", `<@${target.id}> welcome back`);
-                    await message.reply({embeds: [unmuteEmbed]})
+                    await message.reply({
+                        embeds: [unmuteEmbed],
+                        failIfNotExists: false
+                    })
 
                     // Mod logs embed
                     const modLogs = message.guild.channels.cache.get(config.modlogs)
@@ -303,11 +356,18 @@ class Moderation {
                 }
             }
             else {
-                await message.reply({content: "Mention someone to unmute", embeds: [unmuteHelpEmbed]})
+                await message.reply({
+                    content: "Mention someone to unmute",
+                    embeds: [unmuteHelpEmbed],
+                    failIfNotExists: false
+                })
             }
         }
         else {
-            await message.reply("You are not authorised to do this")
+            await message.reply({
+                content: "You are not authorised to do this",
+                failIfNotExists: false
+            })
         }
     }
 
@@ -337,7 +397,10 @@ class Moderation {
 
             // If the channel is already locked
             if(perms.deny.has(Permissions.FLAGS.SEND_MESSAGES)) {
-                await message.reply("This channel is already locked")
+                await message.reply({
+                    content: "This channel is already locked",
+                    failIfNotExists: false
+                })
             }
             else {
                 // Edit permissions and lock the channel
@@ -359,7 +422,10 @@ class Moderation {
                     description: `Locked <#${target.id}>`,
                     timestamp: Date.now()
                 })
-                await message.reply({embeds: [lockAckEmbed]})
+                await message.reply({
+                    embeds: [lockAckEmbed],
+                    failIfNotExists: false
+                })
 
                 // Lock logs embed for mod-logs
                 const modLogs = message.guild.channels.cache.get(config.modlogs)
@@ -375,7 +441,10 @@ class Moderation {
             }
         }
         else {
-            await message.reply("I am not dyno to let you do this")
+            await message.reply({
+                content: "I am not dyno to let you do this",
+                failIfNotExists: false
+            })
         }
     }
 
@@ -396,7 +465,10 @@ class Moderation {
 
             // If the channel is not locked in the first place
             if((!perms.allow.has(Permissions.FLAGS.SEND_MESSAGES)) && (!perms.deny.has(Permissions.FLAGS.SEND_MESSAGES))) {
-                await message.reply("This channel ain't locked bruh whatcha doin")
+                await message.reply({
+                    content: "This channel ain't locked bruh whatcha doin",
+                    failIfNotExists: false
+                })
             }
             else {
                 // Edit permissions and unlock the channel
@@ -417,7 +489,10 @@ class Moderation {
                     description: `Unlocked <#${target.id}>`,
                     timestamp: Date.now()
                 })
-                await message.reply({embeds: [unlockAckEmbed]})
+                await message.reply({
+                    embeds: [unlockAckEmbed],
+                    failIfNotExists: false
+                })
 
                 // Unlock logs embed for mod-logs
                 const modLogs = message.guild.channels.cache.get(config.modlogs)
@@ -432,7 +507,10 @@ class Moderation {
             }
         }
         else {
-            await message.reply("You think I am like dyno ah?")
+            await message.reply({
+                content: "You think I am like dyno ah?",
+                failIfNotExists: false
+            })
         }
     }
 }
