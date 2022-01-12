@@ -309,13 +309,31 @@ class Utils {
     help = async(message) => {
         clientInfo.message = message;
 
-        let content = "Help command is still under development. But here are the list of all available commands\n```"
-        content += config.commands.join("\n")
-        content += "```"
-        await message.reply({
-            content: content,
-            failIfNotExists: false
-        })
+        // If user is not verified, display only one embed with !verify
+        if(message.member.roles.cache.some((role) => [config.just_joined].includes(role.id))) {
+            const justJoined = new MessageEmbed({
+                title: "PESU Bot",
+                color: "DARK_PURPLE",
+                timestamp: Date.now()
+            })
+                .addField("Verify", "`!verify`/`!v` [SRN/PRN]\n\nVerification Process. Type `!verify` to know more", false)
+            await message.reply({
+                embeds: [justJoined],
+                failIfNotExists: false
+            })
+        }
+        else {
+            // Get the required embed(default embed is general page 1) and message components(Buttons and Select Menu)
+            const {targetEmbed, targetComponents} = require('../helpers/helpEmbeds')
+            const embed = targetEmbed('general1')
+            const components = targetComponents(embed)
+
+            await message.reply({
+                embeds: [embed],
+                components: components,
+                failIfNotExists: false
+            })
+        }
     }
 }
 const utils = new Utils()
