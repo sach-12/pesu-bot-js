@@ -94,7 +94,7 @@ client.on("interactionCreate", async(interaction) => {
     }
     // Select Menu
     else if(interaction.isSelectMenu()) {
-        interactionFunc = selectMenuInteractions.interactions.findKey(inter => inter === interaction.customId)
+        interactionFunc = selectMenuInteractions.interactions.findKey(inter => inter.includes(interaction.customId))
     }
     // Just in case, shouldn't ever happen though
     else {

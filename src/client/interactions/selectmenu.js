@@ -6,7 +6,9 @@ const config = require('../../config.json')
 class SelectMenu {
     constructor() {
         this.interactions = new Collection()
-            .set(this.helpSelect, "helpSelect")
+            .set(this.helpSelect, ["helpSelect"])
+            .set(this.elective, ["e3", "e4"])
+            .set(this.roles, ["ar"])
     }
 
     helpSelect = async(interaction) => {
@@ -39,6 +41,63 @@ class SelectMenu {
             embeds: [dispEmbed],
             components, components
         })
+    }
+
+    elective = async(interaction) => {
+        await interaction.deferReply({ephemeral: true})
+
+        // Get member who invoked the interaction and check if he/she belongs to 2018/19 batch
+        const member = interaction.member
+        if(member.roles.cache.some((role) => role.name.includes("Junior") || role.name.includes("Kid"))) {
+            await interaction.editReply({content: "This feature is only for the 2019 batch"})
+        }
+        else if(member.roles.cache.has(config.just_joined)) {
+            await interaction.editReply({content: "You need to verify yourself first"})
+        }
+        else if(member.roles.cache.some((role) => [config.admin, config.mod].includes(role.id))) {
+            await interaction.editReply({content: "How does it matter to you anyway? You can see all of them"})
+        }
+        else {
+            // Get the member requested channel
+            const request = interaction.values[0]
+            const targetChannel = interaction.guild.channels.cache.get(request)
+
+            // Revoke access if member was already present
+            if(targetChannel.permissionOverwrites.cache.has(member.id)) {
+                await interaction.editReply({content: "You already had access to this elective channel. I am now revoking it"})
+                await targetChannel.permissionOverwrites.delete(member)
+            }
+            // Add channel override to target channel
+            else {
+                await targetChannel.permissionOverwrites.create(member, {VIEW_CHANNEL: true})
+                await interaction.editReply({content: `You now have access to <#${targetChannel.id}>`})
+            }
+        }
+    }
+
+    roles = async(interaction) => {
+        await interaction.deferReply({ephemeral: true})
+
+        // Get member who invoked the interaction and check if he/she is verified
+        const member = interaction.member
+        if(member.roles.cache.has(config.just_joined)) {
+            await interaction.editReply({content: "You need to verify yourself first"})
+        }
+        else {
+            // Get role ID from interaction
+            const roleId = interaction.values[0]
+
+            // Remove role if already present. Add role if not present
+            if(member.roles.cache.has(roleId)) {
+                await interaction.editReply({content: "Role was already present. Removing now..."})
+                await member.roles.remove(roleId)
+            }
+            else {
+                const roleName = interaction.guild.roles.cache.get(roleId)
+                await member.roles.add(roleId)
+                await interaction.editReply({content: `You now have the ${roleName} role`})
+            }
+        }
     }
 }
 
