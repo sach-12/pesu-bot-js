@@ -9,6 +9,7 @@ class Button {
         this.interactions = new Collection()
             .set(this.pollshow, ["ps"])
             .set(this.help, ["helpPrevious", "helpNext"])
+            .set(this.deleteAnon, ["deleteAnon"])
     }
 
     pollshow = async(interaction) => {
@@ -62,6 +63,21 @@ class Button {
             embeds: [dispEmbed],
             components, components
         })
+    }
+
+    deleteAnon = async(interaction) => {
+        await interaction.deferReply({ephemeral: true})
+        const slash = require('./slash')
+        const messageId = interaction.message.id
+        const authorId = Object.keys(slash.anonCache).find(key => slash.anonCache[key].includes(messageId))
+        const deleteAuthorId = interaction.member.id
+        if(authorId === deleteAuthorId) {
+            await interaction.editReply({content: "Your anon message has been deleted"})
+            await interaction.message.delete()
+        }
+        else {
+            await interaction.editReply({content: "Not yours to delete"})
+        }
     }
 }
 
