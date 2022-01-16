@@ -74,24 +74,19 @@ class Verification {
         const {batch_2018, batch_2019, batch_2020, batch_2021, verified} = require('../helpers/models');
         const year = usn.substring(6, 8);
         let dbc = null; // Collection object
-        let sec = null; // This is done because PRN based verification use section for validation
-        var finder = {SRN: usn}; // Default collection finder will be SRN based. Only for 2021 batch, it is PRN based (for now)
+        let sec = false; // This is done because PRN based verification use section for validation
         if (year === "18"){
             dbc = batch_2018;
             sec = true;
         }
         else if (year === "19"){
             dbc = batch_2019;
-            sec = false;
         }
         else if (year === "20"){
             dbc = batch_2020;
-            sec = false;
         }
         else if (year === "21"){
             dbc = batch_2021;
-            sec = true;
-            finder = {PRN: usn};
         }
         else {
             const msg2 = await message.reply({
@@ -116,7 +111,7 @@ class Verification {
         });
 
         // Get PESU academy details from SRN/PRN
-        const batchRes = await dbc.findOne(finder);
+        const batchRes = await dbc.findOne({SRN: usn});
         if(batchRes === null ){
             const msg2 = await message.reply({
                 content: "Given SRN/PRN not found. Try again",

@@ -1,6 +1,6 @@
 // Handles all slash command interactions
 
-const { Collection, DiscordAPIError, Permissions, MessageEmbed } = require("discord.js");
+const { Collection, DiscordAPIError, Permissions, MessageEmbed, MessageActionRow, MessageButton } = require("discord.js");
 const { anonbanHelper } = require('../helpers/misc')
 const config = require('../../config.json')
 
@@ -119,6 +119,16 @@ class Slash {
                 description: message
             })
 
+            // Delete button
+            const row = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('deleteAnon')
+                        .setEmoji("🗑️")
+                        .setStyle("DANGER")
+                        .setLabel("Delete")
+                )
+
             // Send anon message to lobby
             const lobbyChannel = interaction.guild.channels.cache.get("860224115633160203")
             await interaction.editReply({content: `:white_check_mark: Your anon message has been sent to <#${lobbyChannel.id}>`})
@@ -126,7 +136,8 @@ class Slash {
                 embeds: [anonEmbed],
                 reply: {
                     messageReference: replyTo
-                }
+                },
+                // components: [row]
             })
 
             // Store the anon message ID in memory with the anon message author
