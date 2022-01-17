@@ -36,10 +36,20 @@ class Verification {
             color: "BLUE",
             timestamp: Date.now()
         })
-            .addField("Process for 2019 and 2020 batch", "1. Enter SRN (PES1UG19.....) as argument\n2. Enter PRN (PES12019.....) as text when prompted by the bot")
-            .addField("Process for 2018 and 2021 batch", "1. Enter PRN (PES12018.....) as argument\n2. Enter section as text when prompted by the bot");
+            .addField("Process", "1. Enter SRN (PES1UG19.....) as argument\n2. Enter PRN (PES12019.....) as text when prompted by the bot")
+            .addField("Process for 2018 batch", "1. Enter PRN (PES12018.....) as argument\n2. Enter section as text when prompted by the bot")
+            .setImage("https://media.discordapp.net/attachments/746058859604606987/932689253677301801/unknown.png")
 
         var purgeMessageList = [message]; // Accumulating messages to later purge
+
+        // Check if arguments are present
+        if (args.length == 0) {
+            const msg2 = await message.reply({
+                embeds: [processEmbed],
+                failIfNotExists: false
+            });
+            return;
+        }
 
         // Check for verified role already present
         if (message.member.roles.cache.some(
@@ -51,18 +61,6 @@ class Verification {
             });
             purgeMessageList.push(msg2);
             await sleep(10);
-            await message.channel.bulkDelete(purgeMessageList);
-            return;
-        }
-
-        // Check if arguments are present
-        if (args.length == 0) {
-            const msg2 = await message.reply({
-                embeds: [processEmbed],
-                failIfNotExists: false
-            });
-            purgeMessageList.push(msg2);
-            await sleep(30);
             await message.channel.bulkDelete(purgeMessageList);
             return;
         }
@@ -198,6 +196,20 @@ class Verification {
                         failIfNotExists: false
                     });
                     purgeMessageList.push(msg4);
+
+                    // DMs the member with a welcome message
+                    try {
+                        await message.member.send({
+                            content: `Thanks for verifying yourself. <#860224115633160203> is the general lobby where you can say hi and talk with everyone. You can also head over to <#778823213345538068> to pick up additional roles for certain private channels.\nIf you need any help, you can text any online \`${message.member.guild.roles.cache.get(config.admin).name}\` or \`${message.member.guild.roles.cache.get(config.mod).name}\`. Have fun!\n\n(Do not reply to this bot. This message was auto-generated)`
+                        })
+                    } catch (error) {
+                        if(error instanceof DiscordAPIError) {
+                            successEmbed.addField("\u200b", "DMs were closed")
+                        }
+                        else {
+                            throw(error)
+                        }
+                    }
 
                     // Get appropriate role based on branch and year of study
                     if (year === "18"){
