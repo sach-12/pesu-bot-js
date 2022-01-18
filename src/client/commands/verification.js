@@ -102,7 +102,7 @@ class Verification {
         const mongoose = require('mongoose');
 
         // Mongoooooooooooooooooooooooooooose
-        mongoose.connect('mongodb://localhost:27017/pesu',
+        mongoose.connect(process.env.MONGO_URI,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
@@ -306,7 +306,7 @@ class Verification {
                 })
                 if(member === undefined) {
                     await message.reply({
-                        content: "Mention a valid user (either @ them or type their username or put their user ID",
+                        content: "Mention a valid user (either @ them or type their username or put their user ID)",
                         failIfNotExists: false
                     })
                 }
@@ -315,7 +315,7 @@ class Verification {
                     // Connect to MongoDB
                     const mongoose = require('mongoose');
                     const {batch_2018, batch_2019, batch_2020, batch_2021, verified} = require('../helpers/models');
-                    mongoose.connect('mongodb://localhost:27017/pesu',
+                    mongoose.connect(process.env.MONGO_URI,
                     {
                         useNewUrlParser: true,
                         useUnifiedTopology: true
@@ -436,7 +436,7 @@ class Verification {
                 })
                 if(member === null) {
                     await message.reply({
-                        content: "Mention a valid user (either @ them or type their username or put their user ID",
+                        content: "Mention a valid user (either @ them or type their username or put their user ID)",
                         failIfNotExists: false
                     })
                 }
@@ -502,7 +502,7 @@ class Verification {
             const {verified} = require('../helpers/models')
             const fs = require('fs')
 
-            mongoose.connect('mongodb://localhost:27017/pesu',
+            mongoose.connect(process.env.MONGO_URI,
             {
                 useNewUrlParser: true,
                 useUnifiedTopology: true

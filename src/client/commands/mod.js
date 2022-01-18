@@ -201,7 +201,7 @@ class Moderation {
                     // If you're trying to mute a bot
                     else if(target.user.bot){
                         await message.reply({
-                            content: "You dare mute of of my kind nin amn",
+                            content: "You dare mute one of my kind nin amn",
                             failIfNotExists: false
                         })
                     }
@@ -590,7 +590,7 @@ class Moderation {
                     // If you're trying to time-out a bot
                     else if(target.user.bot){
                         await message.reply({
-                            content: "You dare time-out of of my kind nin amn",
+                            content: "You dare time-out one of my kind nin amn",
                             failIfNotExists: false
                         })
                     }

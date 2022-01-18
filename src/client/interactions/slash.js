@@ -84,7 +84,7 @@ class Slash {
         const {connect} = require('mongoose')
         const {anonban} = require('../helpers/models')
 
-        connect('mongodb://localhost:27017/pesu',
+        connect(process.env.MONGO_URI,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
@@ -272,7 +272,7 @@ class Slash {
             const {connect} = require('mongoose')
             const {anonban} = require('../helpers/models')
 
-            connect('mongodb://localhost:27017/pesu',
+            connect(process.env.MONGO_URI,
             {
                 useNewUrlParser: true,
                 useUnifiedTopology: true

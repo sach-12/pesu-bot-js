@@ -34,7 +34,7 @@ class HelpClass {
     })
         .addField("Count", "`!count`/`!c` [List of roles]\nResponds with the number of people having all the given roles", false)
         .addField("Elective", "`!elective`\nGets the elective choosing menu", false)
-        .addField("Additional Roles", "`!roles`/`!ar`\nGets the manu for choosing additional roles")
+        .addField("Additional Roles", "`!roles`/`!ar`\nGets the menu for choosing additional roles")
         .setFooter({text: "Page 3/4"})
 
     general4 = new MessageEmbed({
