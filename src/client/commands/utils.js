@@ -16,6 +16,7 @@ class Utils {
             .set(this.help, ["help", "h"])
             .set(this.elective, ["elective"])
             .set(this.addroles, ["roles", "ar"])
+            .set(this.spotify, ["spotify"])
 
         this.deletedMessage = null;
         this.editedMessage = null;
@@ -632,6 +633,43 @@ class Utils {
             embeds: [embed],
             components: [row]
         })
+    }
+
+    spotify = async(message) => {
+        clientInfo.message=message;
+
+        // Find target member
+        // Remove mention caused by reply if it exists
+        if((message.type === "REPLY") && (message.mentions.members.first().id != message.mentions.repliedUser.id)){
+            message.mentions.members.delete(message.mentions.repliedUser.id);
+        }
+        let target = message.mentions.members.first();
+        if(!target) target = message.member
+
+        // Find Spotify activity
+        const presence = target.presence
+        if(presence === null) {
+            await message.reply({
+                content: "No spotify activity detected",
+                failIfNotExists: false
+            })
+            return
+        }
+        const spoti = presence.activities.find((activity) => activity.name === "Spotify")
+        if(spoti === undefined) {
+            await message.reply({
+                content: "No spotify activity detected",
+                failIfNotExists: false
+            })
+        }
+        else {
+            // Get spotify track details
+            const content = `Listening to: \`${spoti.details}\` by \`${spoti.state}\`\nSong link: https://open.spotify.com/track/${spoti.syncId}`
+            await message.reply({
+                content: content,
+                failIfNotExists: false
+            })
+        }
     }
 }
 const utils = new Utils()
