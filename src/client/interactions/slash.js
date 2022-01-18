@@ -94,6 +94,15 @@ class Slash {
 
         // If the member is not banned
         if(res === null) {
+
+            // Check if the user is muted or if the channel is locked
+            const lobbyChannel = interaction.guild.channels.cache.get("860224115633160203")
+            const perms = lobbyChannel.permissionsFor(interaction.member)
+            if(!perms.has(Permissions.FLAGS.SEND_MESSAGES)) {
+                await interaction.editReply({content: "Looks like the channel is locked or you're muted. I won't send"})
+                return
+            }
+
             // Get message content and message to reply to, if exists
             const message = interaction.options.get('message').value
             const link = interaction.options.get('link')
@@ -130,7 +139,6 @@ class Slash {
                 )
 
             // Send anon message to lobby
-            const lobbyChannel = interaction.guild.channels.cache.get("860224115633160203")
             await interaction.editReply({content: `:white_check_mark: Your anon message has been sent to <#${lobbyChannel.id}>`})
             const anonMessage = await lobbyChannel.send({
                 embeds: [anonEmbed],

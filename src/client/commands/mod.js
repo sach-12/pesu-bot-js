@@ -12,6 +12,8 @@ class Moderation {
             .set(this.unmute, ["unmute"])
             .set(this.lock, ["lock"])
             .set(this.unlock, ["unlock"])
+            .set(this.timeout, ["timeout", "to"])
+            .set(this.detimeout, ["detimeout", "dto"])
         this.mutedict = {};
     }
 
@@ -221,7 +223,7 @@ class Moderation {
                             color: "RED",
                             timestamp: Date.now()
                         })
-                            .addField("Muted User", `<@${target.id}> was muted`);
+                            .addField("Muted User", `<@${target.id}> was muted\nUnmute <t:${Math.floor(Date.now()/1000 + seconds)}:R>`);
                         await message.reply({
                             embeds: [muteEmbed],
                             failIfNotExists: false
@@ -255,7 +257,10 @@ class Moderation {
                                     timestamp: Date.now()
                                 })
                                     .addField("Unmute user", `<@${target.id}> welcome back`)
-                                await message.channel.send({embeds: [unmuteEmbed]})
+                                await message.channel.send({
+                                    content: `<@${target.id}>`,
+                                    embeds: [unmuteEmbed]
+                                })
 
                                 // Mod logs embed
                                 const unmuteLogsEmbed = new MessageEmbed({
@@ -509,6 +514,228 @@ class Moderation {
         else {
             await message.reply({
                 content: "You think I am like dyno ah?",
+                failIfNotExists: false
+            })
+        }
+    }
+
+    timeout = async(message, args) => {
+        clientInfo.message=message;
+
+        // Find target member to be timed-out
+        // Remove mention caused by reply if it exists
+        if((message.type === "REPLY") && (message.mentions.members.first().id != message.mentions.repliedUser.id)){
+            message.mentions.members.delete(message.mentions.repliedUser.id);
+        }
+        const target = message.mentions.members.first();
+
+        const timeoutHelpEmbed = new MessageEmbed({
+            title: "Timeout",
+            color: "0x48BF91",
+            description: "`!timeout`/`!to`\n!timeout [Member mention] [Time] {Reason: optional}\n\nTimes the user out for the specified time\nLimit: 14 days",
+            timestamp: Date.now()
+        })
+
+        // Time-out command only for admin/roles
+        if(message.member.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {
+            if(target) {
+                // Parse time into seconds
+                let seconds = 0
+                if(args[1] != null){
+                    const time = args[1].toLowerCase()
+                    if(time.endsWith("d")) {
+                        seconds += parseInt(time.slice(0, -1)) * 60 * 60 * 24
+                    }
+                    else if(time.endsWith("h")) {
+                        seconds += parseInt(time.slice(0, -1)) * 60 * 60
+                    }
+                    else if(time.endsWith("m")) {
+                        seconds += parseInt(time.slice(0, -1)) * 60
+                    }
+                    else if(time.endsWith("s")) {
+                        seconds += parseInt(time.slice(0, -1))
+                    }
+                    else {
+                        timeoutHelpEmbed.addField("Accepted Time Format", "Should end with `d/h/m/s`")
+                        await message.reply({
+                            content: "Mention the proper amount of time to be timed-out",
+                            embeds: [timeoutHelpEmbed],
+                            failIfNotExists: false
+                        })
+                        return
+                    }
+                    // Handling all edge cases in the following if-else clause
+                    // If time-out limit is over the border
+                    if((seconds <= 0) || (seconds > 1209600)) {
+                        await message.reply({
+                            content: "Time-out limit is 14 days only",
+                            embeds: [timeoutHelpEmbed],
+                            failIfNotExists: false
+                        })
+                    }
+                    // If the member is already timed-out
+                    else if(target.isCommunicationDisabled()) {
+                        await message.reply({
+                            content: "Brother, leave the already timed-out poor soul alone",
+                            failIfNotExists: false
+                        })
+                    }
+                    // If you're trying to time-out the admin or a mod
+                    else if(target.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {
+                        await message.reply({
+                            content: "Leyy, he's admin/mod. Can't time them out",
+                            failIfNotExists: false
+                        })
+                    }
+                    // If you're trying to time-out a bot
+                    else if(target.user.bot){
+                        await message.reply({
+                            content: "You dare time-out of of my kind nin amn",
+                            failIfNotExists: false
+                        })
+                    }
+
+                    // If none of the above conditions are satisfied, it is safe to time-out
+                    else{
+                        // Get reason string
+                        let reason = "no reason provided"
+                        if(args[2] != null) {
+                            reason = message.content.substring(message.content.indexOf(args[2]))
+                        }
+
+                        // Time-out the member and send required embeds
+                        await target.disableCommunicationUntil(Date.now() + seconds*1000, reason)
+
+                        const timeoutEmbed = new MessageEmbed({
+                            title: "Time-out",
+                            color: "DARK_RED",
+                            timestamp: Date.now()
+                        })
+                            .addField("Timed-out Member", `<@${target.id}> was timed-out\nDe-time-out <t:${Math.floor(Date.now()/1000 + seconds)}:R>`)
+                        await message.reply({
+                            embeds: [timeoutEmbed],
+                            failIfNotExists: false
+                        })
+
+                        const modLogs = message.guild.channels.cache.get(config.modlogs)
+                        const timeoutLogsEmbed = new MessageEmbed({
+                            title: "Time-out",
+                            color: "DARK_RED",
+                            timestamp: Date.now()
+                        })
+                            .addField("Muted User", `<@${target.id}>\nTime: ${time}\nReason: ${reason}\nModerator: <@${message.author.id}>`)
+                        await modLogs.send({embeds: [timeoutLogsEmbed]})
+
+                        // After timeout duration, send de-timeout message embeds
+                        await sleep(seconds+1)
+                        if(!target.isCommunicationDisabled()) {
+                            const detimeoutEmbed = new MessageEmbed({
+                                title: "De-Time-out",
+                                color: "DARK_GREEN",
+                                timestamp: Date.now()
+                            })
+                                .addField("De-timed-out Member", `<@${target.id}>, welcome back`)
+                            await message.channel.send({
+                                content: `<@${target.id}>`,
+                                embeds: [detimeoutEmbed]
+                            })
+                            const detimeoutLogsEmbed = new MessageEmbed({
+                                title: "De-time-out",
+                                color: "DARK_GREEN",
+                                timestamp: Date.now()
+                            })
+                                .addField("De-timed-out User", `<@${target.id}>\nModerator: Auto`);
+                            await modLogs.send({embeds: [detimeoutLogsEmbed]})
+                        }
+                    }
+                }
+                else {
+                    await message.reply({
+                        content: "Mention the time to be timed-out for",
+                        embeds: [timeoutHelpEmbed],
+                        failIfNotExists: false
+                    })
+                }
+            }
+            else {
+                await message.reply({
+                    content: "Mention someone to timeout",
+                    embeds: [timeoutHelpEmbed],
+                    failIfNotExists: false
+                })
+            }
+        }
+        else {
+            await message.reply({
+                content: "You are not authorised to do this",
+                failIfNotExists: false
+            })
+        }
+    }
+
+    detimeout = async(message) => {
+        clientInfo.message=message;
+
+        // Find target member to be timed-out
+        // Remove mention caused by reply if it exists
+        if((message.type === "REPLY") && (message.mentions.members.first().id != message.mentions.repliedUser.id)){
+            message.mentions.members.delete(message.mentions.repliedUser.id);
+        }
+        const target = message.mentions.members.first();
+
+        const detimeoutHelpEmbed = new MessageEmbed({
+            title: "De-Timeout",
+            color: "0x48BF91",
+            description: "`!detimeout`/`!dto`\n!detimeout [Member mention]\n\nRemoves the member timeout",
+            timestamp: Date.now()
+        })
+
+        // De-timeout command only for admin/mods
+        if(message.member.roles.cache.some((role => [config.admin, config.mod].includes(role.id)))) {
+            if(target) {
+
+                // Remove timeout if exists and send required messages/embeds
+                if(!target.isCommunicationDisabled()) {
+                    await message.reply({
+                        content: "This person ain't on timeo-out only",
+                        failIfNotExists: false
+                    })
+                }
+                else {
+                    await target.disableCommunicationUntil(null)
+
+                    const detimeoutEmbed  = new MessageEmbed({
+                        title: "De-Time-out",
+                        color: "DARK_GREEN",
+                        timestamp: Date.now()
+                    })
+                        .addField("De-timed-out Member", `<@${target.id}>, welcome back`)
+                    await message.channel.send({
+                        content: `<@${target.id}>`,
+                        embeds: [detimeoutEmbed]
+                    })
+
+                    const modLogs = message.guild.channels.cache.get(config.modlogs)
+                    const detimeoutLogsEmbed = new MessageEmbed({
+                        title: "De-time-out",
+                        color: "DARK_GREEN",
+                        timestamp: Date.now()
+                    })
+                        .addField("De-timed-out User", `<@${target.id}>\nModerator: <@${message.member.id}>`);
+                    await modLogs.send({embeds: [detimeoutLogsEmbed]})
+                }
+            }
+            else {
+                await message.reply({
+                    content: "Mention someone to de-timeout",
+                    embeds: [detimeoutHelpEmbed],
+                    failIfNotExists: false
+                })
+            }
+        }
+        else {
+            await message.reply({
+                content: "You are not authorised to do this",
                 failIfNotExists: false
             })
         }
