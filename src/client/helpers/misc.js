@@ -16,7 +16,7 @@ class Misc {
         const mongoose = require('mongoose')
         const {verified} = require('./models')
 
-        mongoose.connect('mongodb://localhost:27017/pesu',
+        mongoose.connect(process.env.MONGO_URI,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
@@ -185,7 +185,7 @@ class Misc {
         const {connect} = require('mongoose')
         const {anonban} = require('./models')
 
-        connect('mongodb://localhost:27017/pesu',
+        connect(process.env.MONGO_URI,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
