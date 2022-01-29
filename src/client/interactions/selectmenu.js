@@ -87,15 +87,22 @@ class SelectMenu {
             // Get role ID from interaction
             const roleId = interaction.values[0]
 
-            // Remove role if already present. Add role if not present
-            if(member.roles.cache.has(roleId)) {
-                await interaction.editReply({content: "Role was already present. Removing now..."})
-                await member.roles.remove(roleId)
+            // If user chooses none
+            if(roleId === "0") {
+                await interaction.editReply({content: "OK"});
             }
+
             else {
-                const roleName = interaction.guild.roles.cache.get(roleId)
-                await member.roles.add(roleId)
-                await interaction.editReply({content: `You now have the ${roleName} role`})
+                // Remove role if already present. Add role if not present
+                if(member.roles.cache.has(roleId)) {
+                    await interaction.editReply({content: "Role was already present. Removing now..."})
+                    await member.roles.remove(roleId)
+                }
+                else {
+                    const roleName = interaction.guild.roles.cache.get(roleId)
+                    await member.roles.add(roleId)
+                    await interaction.editReply({content: `You now have the ${roleName} role`})
+                }
             }
         }
     }

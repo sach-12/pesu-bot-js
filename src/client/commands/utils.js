@@ -574,6 +574,11 @@ class Utils {
                     .setPlaceholder("Additional Roles")
                     .setOptions([ // The value corresponds to role ID
                         {
+                            label: "None",
+                            value: "0",
+                            description: "Use this to de-select your choice in this menu"
+                        },
+                        {
                             label: "Gamer",
                             value: "778825985361051660",
                             description: "Don't ever question Minecraft logic",
@@ -608,6 +613,12 @@ class Utils {
                             value: "836652197214421012",
                             description: "Stutututu",
                             emoji: "⚙️"
+                        },
+                        {
+                            label: "Investors",
+                            value: "936886064361144360",
+                            description: "Stocks and Crypto are your friends",
+                            emoji: "💸"
                         },
                         {
                             label: "PESU Bot Dev",
