@@ -41,7 +41,7 @@ const slashInteractions = require("./client/interactions/slash");
 const cmenuInteractions = require('./client/interactions/cmenu');
 const selectMenuInteractions = require('./client/interactions/selectmenu');
 
-client.once('ready', async() => {
+client.on('ready', async() => {
     clientInfo.init(client);
     await clientEvent.ready(client)
 });

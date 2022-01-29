@@ -23,8 +23,8 @@ class Events {
         const botLogs = client.channels.cache.get(config.logs)
         await botLogs.send("Bot is online")
         client.user.setActivity({
-            name: "with the brand new JS bot",
-            type: "PLAYING"
+            name: "students suffer",
+            type: "WATCHING"
         })
     }
 
