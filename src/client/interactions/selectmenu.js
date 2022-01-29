@@ -86,7 +86,6 @@ class SelectMenu {
         else {
             // Get role ID from interaction
             const roleId = interaction.values[0]
-            console.log(roleId)
 
             // If user chooses none
             if(roleId === "0") {
