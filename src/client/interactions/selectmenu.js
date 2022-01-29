@@ -76,25 +76,24 @@ class SelectMenu {
     }
 
     roles = async(interaction) => {
+        await interaction.deferReply({ephemeral: true})
 
         // Get member who invoked the interaction and check if he/she is verified
         const member = interaction.member
         if(member.roles.cache.has(config.just_joined)) {
-            await interaction.deferReply({ephemeral: true})
             await interaction.editReply({content: "You need to verify yourself first"})
         }
         else {
             // Get role ID from interaction
             const roleId = interaction.values[0]
+            console.log(roleId)
 
             // If user chooses none
             if(roleId === "0") {
-                await interaction.reply({content: "\u200b"})
-                await interaction.deleteReply()
+                await interaction.editReply({content: "OK"});
             }
 
             else {
-                await interaction.deferReply({ephemeral: true})
                 // Remove role if already present. Add role if not present
                 if(member.roles.cache.has(roleId)) {
                     await interaction.editReply({content: "Role was already present. Removing now..."})
