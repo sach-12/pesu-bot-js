@@ -82,7 +82,7 @@ class Slash {
 
         // MongoDB access to check if interaction origin member is banned from using anon messaging
         const {connect} = require('mongoose')
-        const {anonban} = require('../helpers/models')
+        const {anonban, verified} = require('../helpers/models')
 
         connect(process.env.MONGO_URI,
         {
@@ -120,9 +120,17 @@ class Slash {
                 }
             }
 
+            // Get anon tag from object ID
+            const user = await verified.findOne({ID: interaction.member.id})
+            if(user === null) {
+                await interaction.editReply({content: "You're not verified, so you can't use anon messaging. If this is a mistake, please contact Han"})
+                return
+            }
+            const anonTag = user._id.toString().slice(4,8)
+
             // Anon embed variable
             const anonEmbed = new MessageEmbed({
-                title: "Anon Message",
+                title: `Anon Message ${anonTag}`,
                 color: "RANDOM",
                 timestamp: Date.now(),
                 description: message
