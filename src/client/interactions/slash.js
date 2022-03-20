@@ -130,7 +130,7 @@ class Slash {
 
             // Anon embed variable
             const anonEmbed = new MessageEmbed({
-                title: `Anon Message ${anonTag}`,
+                title: `Anon Message`,
                 color: "RANDOM",
                 timestamp: Date.now(),
                 description: message
