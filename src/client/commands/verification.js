@@ -111,8 +111,9 @@ class Verification {
         // Get PESU academy details from SRN/PRN
         const batchRes = await dbc.findOne({SRN: usn});
         if(batchRes === null ){
+            const adminRole = message.guild.roles.cache.get(config.admin).name
             const msg2 = await message.reply({
-                content: "Given SRN/PRN not found. Try again",
+                content: `Given SRN/PRN not found. Try again. If this is a mistake, contact \`${adminRole}\``,
                 embeds: [processEmbed],
                 failIfNotExists: false
             });
