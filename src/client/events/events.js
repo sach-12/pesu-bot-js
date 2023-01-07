@@ -1,7 +1,6 @@
 // This file handles event triggers
 const config = require('../../config.json')
-const {sleep, nqnTest, deverifyFunc} = require("../helpers/misc")
-const utils = require("../commands/utils")
+const {deverifyFunc} = require("../helpers/misc")
 const {MessageEmbed} = require('discord.js')
 
 class Events {
@@ -54,55 +53,42 @@ class Events {
 
     messageDelete = async(message) => {
         if(message.author.bot === true) return;
-        await sleep(0.5)
-        const nqn = await nqnTest(message)
-        if(nqn === false) {
-            // To check ghost ping
-            const allMentions = message.mentions
 
-            const ghostPingEmbed = new MessageEmbed({
-                title: "Ghost Ping Alert",
-                timestamp: Date.now(),
-                color: "BLUE"
-            })
+        // To check ghost ping
+        const allMentions = message.mentions
 
-            // @everyone or @here ghost ping
-            if(allMentions.everyone === true) {
-                ghostPingEmbed.addField("@everyone/@here pings", `<@${message.author.id}> ghost pinged \`@everyone/@here\` in <#${message.channel.id}>`)
-            }
+        const ghostPingEmbed = new MessageEmbed({
+            title: "Ghost Ping Alert",
+            timestamp: Date.now(),
+            color: "BLUE"
+        })
 
-            // If any role was ghost pinged
-            if(allMentions.roles.size > 0) {
-                const mentionsCollect = allMentions.roles
-                let pingList = ""
-                mentionsCollect.each(role => pingList += "<@&"+role.id+"> ")
-                ghostPingEmbed.addField("Role pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
-            }
+        // @everyone or @here ghost ping
+        if(allMentions.everyone === true) {
+            ghostPingEmbed.addField("@everyone/@here pings", `<@${message.author.id}> ghost pinged \`@everyone/@here\` in <#${message.channel.id}>`)
+        }
 
-            // Member ghost ping. Filtering out all bot pings
-            if(allMentions.members.filter(member => !member.user.bot).size > 0) {
-                const mentionsCollect = allMentions.members
-                let pingList = ""
-                mentionsCollect.filter(member => !member.user.bot).each(member => pingList += "<@"+member.id+"> ")
-                ghostPingEmbed.addField("Member pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
-            }
+        // If any role was ghost pinged
+        if(allMentions.roles.size > 0) {
+            const mentionsCollect = allMentions.roles
+            let pingList = ""
+            mentionsCollect.each(role => pingList += "<@&"+role.id+"> ")
+            ghostPingEmbed.addField("Role pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
+        }
 
-            // Send embed if there's any ghost ping to mod logs
-            if(ghostPingEmbed.fields.length > 0) {
-                const modLogs = message.guild.channels.cache.get(config.modlogs)
-                ghostPingEmbed.addField("Message content", message.content, false)
-                await modLogs.send({embeds: [ghostPingEmbed]})
-            }
+        // Member ghost ping. Filtering out all bot pings
+        if(allMentions.members.filter(member => !member.user.bot).size > 0) {
+            const mentionsCollect = allMentions.members
+            let pingList = ""
+            mentionsCollect.filter(member => !member.user.bot).each(member => pingList += "<@"+member.id+"> ")
+            ghostPingEmbed.addField("Member pings", `<@${message.author.id}> ghost pinged ${pingList}in <#${message.channel.id}>`)
+        }
 
-            // For sniping
-            utils.deletedMessage = message
-            await sleep(60)
-
-            // Deleted message becomes null after 60 seconds of non-snipe only if the current deletedMessage is the same one
-            // as what triggered the event
-            if(utils.deletedMessage != null && utils.deletedMessage.id === message.id){
-                utils.deletedMessage = null
-            }
+        // Send embed if there's any ghost ping to mod logs
+        if(ghostPingEmbed.fields.length > 0) {
+            const modLogs = message.guild.channels.cache.get(config.modlogs)
+            ghostPingEmbed.addField("Message content", message.content, false)
+            await modLogs.send({embeds: [ghostPingEmbed]})
         }
     }
 
@@ -151,17 +137,6 @@ class Events {
                 const modLogs = oldMessage.guild.channels.cache.get(config.modlogs)
                 await modLogs.send({embeds: [ghostPingEmbed]})
             }
-        }
-
-
-        // Store old message for editsnipe
-        utils.editedMessage = oldMessage
-        await sleep(60)
-
-        // Edited message is made null after 60 seconds only if the current stored message is the same one
-        // which triggered this event
-        if(utils.editedMessage != null && utils.editedMessage.id === oldMessage.id) {
-            utils.editedMessage = null
         }
     }
 

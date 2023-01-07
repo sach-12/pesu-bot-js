@@ -13,7 +13,7 @@ class HelpClass {
         .addField("Uptime", "`!uptime`/`!ut`\nGet the bot uptime", false)
         .addField("Ping", "`!ping`/`!tp`\nGet the bot latency with the API", false)
         .addField("Support", "`!support`/`!contribute`\nContribute and help in developing the bot\n(You could also star the repo)", false)
-        .setFooter({text: "Page 1/4"})
+        .setFooter({text: "Page 1/3"})
 
     general2 = new MessageEmbed({
         title: "PESU Bot",
@@ -21,10 +21,10 @@ class HelpClass {
         description: "General",
         timestamp: Date.now()
     })
-        .addField("Snipe", "`!snipe`\nRetrieves the last deleted message of the channel", false)
-        .addField("Edit Snipe", "`!editsnipe`\nRetrieves the last edited message of the channel, even if deleted", false)
         .addField("Poll", "`!poll`\nCreates a poll. Type `!poll` to know more", false)
-        .setFooter({text: "Page 2/4"})
+        .addField("Count", "`!count`/`!c` [List of roles]\nResponds with the number of people having all the given roles", false)
+        .addField("Additional Roles", "`!roles`/`!ar`\nGets the menu for choosing additional roles")
+        .setFooter({text: "Page 2/3"})
 
     general3 = new MessageEmbed({
         title: "PESU Bot",
@@ -32,19 +32,8 @@ class HelpClass {
         description: "General",
         timestamp: Date.now()
     })
-        .addField("Count", "`!count`/`!c` [List of roles]\nResponds with the number of people having all the given roles", false)
-        .addField("Elective", "`!elective`\nGets the elective choosing menu", false)
-        .addField("Additional Roles", "`!roles`/`!ar`\nGets the menu for choosing additional roles")
-        .setFooter({text: "Page 3/4"})
-
-    general4 = new MessageEmbed({
-        title: "PESU Bot",
-        color: "DARK_PURPLE",
-        description: "General",
-        timestamp: Date.now()
-    })
         .addField("Spotify", "`!spotify` {Member Mention: Optional(Takes self if not specified)}\nGets spotify activity details of the member", false)
-        .setFooter({text: "Page 4/4"})
+        .setFooter({text: "Page 3/3"})
 
     data1 = new MessageEmbed({
         title: "PESU Bot",
@@ -204,9 +193,6 @@ class HelpClass {
         }
         else if(param === 'general3') {
             return this.general3
-        }
-        else if(param === 'general4') {
-            return this.general4
         }
         else if(param === 'data1') {
             return this.data1
