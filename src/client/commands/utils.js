@@ -129,7 +129,7 @@ class Utils {
 
         // Send a deprecated message
         await message.reply({
-            content: "Snipe is finally out of service.",
+            content: "Snipe has been sunsetted",
             failIfNotExists: false
         })
     }
@@ -139,7 +139,7 @@ class Utils {
 
         // Send a deprecated message
         await message.reply({
-            content: "Edit snipe is finally out of service.",
+            content: "Edit snipe has been sunsetted",
             failIfNotExists: false
         })
     }
