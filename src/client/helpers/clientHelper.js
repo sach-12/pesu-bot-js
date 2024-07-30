@@ -20,13 +20,13 @@ class Commands {
         if (this.message && this.client) {
             let BotLogs = this.client.channels.cache.get(config.logs)
             if (BotLogs && this.message) {
-                await BotLogs.send({
-                    content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">"
-                });
-                await this.message.reply({
-                    content: "Error occurred " + err,
-                    failIfNotExists: false
-                });
+                // await BotLogs.send({
+                //     content: "Error occurred " + err + " by <@" + this.message.author.id + "> in <#" + this.message.channel + ">"
+                // });
+                // await this.message.reply({
+                //     content: "Error occurred " + err,
+                //     failIfNotExists: false
+                // });
             }
         } else {
             console.log("Critical Failure" + err);
