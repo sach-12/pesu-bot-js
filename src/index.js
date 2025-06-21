@@ -1,5 +1,7 @@
 // Pending -> restart command
 // Bot token from env
+
+//rewrite slash
 require('dotenv').config();
 const TOKEN = process.env.TOKEN;
 
